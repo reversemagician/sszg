@@ -88,7 +88,7 @@ class fengwang implements role{
 					'type'=>'wuli',//物理伤害
 					'novalueupkey'=>[],//指定不生效加成项
 					'valueupkey'=>[],//必定生效加成项
-					'bacevalue'=>['a'=>$skill['p']],//数组则为系数 非数组则为固定值
+					'bacevalue'=>['a'=>$skill['p']],//key为value时为固定值伤害
 					'valuechange'=>[//伤害加成 或伤害降低
 						// 'fashiup'=>[
 						// 	'p'=>$fashiup,//比例值
@@ -96,10 +96,10 @@ class fengwang implements role{
 						// ]
 					],
 					'attributechange'=>[//附带属性增加或减少
-						// 'mingzhong'=>[//命中提升
-						// 	'p'=>0,
-						// 	'value'=>0,//固定值
-						// ]
+						'baoshang'=>[//命中提升
+							'p'=>0,
+							'value'=>60,//固定值
+						]
 					]
 				],
 				[
@@ -153,21 +153,24 @@ class fengwang implements role{
 
 	//受到攻击伤害结算
 	public function underAttackWork($attack_info){
-		unset($attack_info['releaser']);
 
-		print_r($attack_info);die;
+		// unset($attack_info['releaser']);
+		// print_r($attack_info);die;
 
-		//暴伤加成
-		if(true){
-			$upname='baojiup';//加成名
-			$baojiarr=['wuli','mofa'];//指定默认可暴击的伤害类型
-			$untype=['buff'];//指定非伤害信息
 
-			foreach ($attack_info['attack_info'] as $k => $v) {
 
-				//跳过非伤害的信息包
-				if(!in_array($v['type'],$untype)){ 
 
+		$untype=['buff'];//指定非伤害信息
+
+		//循环攻击包信息
+		foreach ($attack_info['attack_info'] as $k => $v) {
+			
+			//跳过非伤害的信息包
+			if(!in_array($v['type'],$untype)){ 
+				//暴击信息
+				if(true){
+					$upname='baoji';//加成名
+					$baojiarr=['wuli','mofa'];//指定默认可暴击的伤害类型
 					$isbaojiup=false;
 					$isbaojiup=in_array($v['type'],$baojiarr)?true:$isbaojiup;
 					$isbaojiup=in_array($upname,$v['novalueupkey'])?false:$isbaojiup;
@@ -176,19 +179,49 @@ class fengwang implements role{
 					if($isbaojiup){
 						//判定为可暴击伤害 计算暴伤
 
-						if(isset($v['valuechange']['baoshangup'])){
-							die;
-							$attack_info['attack_info'][$k]['valuechange']['baoshangup']['p']=$attack_info['attack_info'][$k]['valuechange']['baoshangup']['p']+$attack_info['releaser']->getAttr('baoshang');
+						$baoshang=0;//暴击伤害
+						if(isset($v['attributechange']['baoshang'])){
+							$baoshang=$v['attributechange']['baoshang']['value']+$v['attributechange']['baoshang']['p']*$attack_info['releaser']->getAttr('baoshang')/100+$attack_info['releaser']->getAttr('baoshang');
 						}else{
-							$attack_info['attack_info'][$k]['valuechange']['baoshangup']=[
-								'p'=>$attack_info['releaser']->getAttr('baoshang'),
-								'value'=>0,
-							];
+							$baoshang=$attack_info['releaser']->getAttr('baoshang');
 						}
 
+						$baoji=0;//暴击率
+						if(isset($v['attributechange']['baoji'])){
+							$baoji=$v['attributechange']['baoji']['value']+$v['attributechange']['baoji']['p']*$attack_info['releaser']->getAttr('baoji')/100+$attack_info['releaser']->getAttr('baoji');
+						}else{
+							$baoji=$attack_info['releaser']->getAttr('baoji');
+						}
 
+						
 					}
+					$baoji=$baoji>=100?100:$baoji;
+					
+					$baoji_p=[
+						'baoji'=>$baoji,
+						'bubaoji'=>100-$baoji,
+					];
+					//暴击命中
+					$is_baoji= $this->probability($baoji_p);
+					echo $is_baoji.'<br>';
+
+					//抗暴命中
+					if($is_baoji=='baoji'){
+						echo $this->getAttr('kangbao');
+						$kangbao=$this->getAttr('kangbao')>100?100:$this->getAttr('kangbao');
+						$kangbao_p=[
+							'bubaoji'=>$kangbao,
+							'baoji'=>100-$kangbao,
+						];
+						print_r($kangbao_p);
+						$is_baoji= $this->probability($baoji_p);
+						echo $is_baoji.'<br>';
+					}
+
 				}
+				
+
+
 				
 					
 			}
@@ -196,6 +229,7 @@ class fengwang implements role{
 
 	}
 
+	//血量改变
 	public function change_h($value){
 		$this->role['h']=$this->role['h']+$value;
 		if($value<0){
@@ -206,22 +240,35 @@ class fengwang implements role{
 
 	//获取属性
 	public function getAttr($attr){
-		$rang=['h_max','h','a','d','s','mingzhong','baoji','baoshang','wushang','fashang'];
+		$rang=['h_max','h','a','d','s','mingzhong','baoji','baoshang','wushang','fashang','kangbao'];
 		if(!in_array($attr, $rang)){
 			return null;
 		}
 		$name=$attr;
-		if(isset($this->role['buff'][$name.'buff'])){
-			$up=[];
-			foreach ($this->role['buff'][$name.'buff'] as $k => $v) {
-				$upvalue=$v['value']+$v['value_p']*$this->role[$name]/100;
-				$up[$v['buffid']]=isset($up[$v['buffid']])?($up[$v['buffid']]>$upvalue?$up[$v['buffid']]:$upvalue):$upvalue;
-			}
-			return array_sum($up)+$this->role[$name];
 
-		}else{
-			return $this->role[$name];
+		//buff属性
+		$buff=[];
+		if(isset($this->role['buff'][$name.'buff'])){
+			
+			foreach ($this->role['buff'][$name.'buff'] as $k => $v) {
+
+				$buffvalue=$v['value']+$v['value_p']*$this->role[$name]/100;
+				$buff[$v['buffid']]=isset($buff[$v['buffid']])?($buff[$v['buffid']]>$buffvalue?$buff[$v['buffid']]:$buffvalue):$buffvalue;
+			}
+
 		}
+
+		//临时属性
+		$linshi=[];
+		foreach ($this->role['linshiattr'] as $k=> $v) {
+			if($v['type']==$name){
+				$linshivalue=$v['value']+$v['value_p']*$this->role[$name]/100;
+				$linshi[]=$linshivalue;
+			}
+		}
+
+		return array_sum($buff)+array_sum($linshi)+$this->role[$name];
+
 	}
 
 

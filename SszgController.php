@@ -17,8 +17,19 @@ class SszgController extends Controller
                 [    
 
                     'name'=>'aup',//buff名
-                    'buffid'=>'aup',
-                    //同类型id相同仅生效一个效果最高的buff
+                    'buffid'=>'aup',//同类型id相同仅生效一个效果最高的buff
+                    'pid'=>'',//父级id
+                    'type'=>'buff',//增益 减益
+                    'is_qusan'=>true,//可驱散
+                    'turn'=>1,//持续回合
+                    'value'=>0,//固定值
+                    'value_p'=>10,//百分比
+                ],
+                [    
+
+                    'name'=>'aup',//buff名
+                    'buffid'=>'aup1',//同类型id相同仅生效一个效果最高的buff
+                    'pid'=>'',//父级id
                     'type'=>'buff',//增益 减益
                     'is_qusan'=>true,//可驱散
                     'turn'=>1,//持续回合
@@ -26,6 +37,22 @@ class SszgController extends Controller
                     'value_p'=>10,//百分比
                 ]
             ]
+        ];
+
+        //临时属性栏
+        $linshiattr=[
+            [
+                'type'=>'a',//属性
+                'value_p'=>20,//百分比
+                'value'=>0,//固定值
+                'end'=>6,//生效到什么阶段
+            ],
+            [
+                'type'=>'baoji',//属性
+                'value_p'=>0,//百分比
+                'value'=>10,//固定值
+                'end'=>6,//生效到什么阶段
+            ],
         ];
 
         $xibie_kezhi=[
@@ -55,9 +82,11 @@ class SszgController extends Controller
                 'baoshang'=>150,//暴伤
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
+                'kangbao'=>20,//抗暴
                 'zhiye'=>'战士',//职业
                 'xibie'=>'feng',//系别
                 'buff'=>$rolebuff,//buff
+                'linshiattr'=>$linshiattr//临时属性
             ],
             [
                 'name'=>'酒神',
@@ -72,9 +101,11 @@ class SszgController extends Controller
                 'baoshang'=>150,//暴伤
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
+                'kangbao'=>20,//抗暴
                 'zhiye'=>'辅助',//职业
                 'xibie'=>'shui',//系别
                 'buff'=>[],//buff
+                'linshiattr'=>[]//临时属性
             ],
             [
                 'name'=>'哪吒',
@@ -89,9 +120,11 @@ class SszgController extends Controller
                 'baoshang'=>150,//暴伤
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
+                'kangbao'=>20,//抗暴
                 'zhiye'=>'战士',//职业
                 'xibie'=>'shui',//系别
                 'buff'=>[],//buff
+                'linshiattr'=>[]//临时属性
             ],
             [
                 'name'=>'拉斐尔',
@@ -106,9 +139,11 @@ class SszgController extends Controller
                 'baoshang'=>150,//暴伤
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
+                'kangbao'=>20,//抗暴
                 'zhiye'=>'辅助',//职业
                 'xibie'=>'guang',//系别
                 'buff'=>[],//buff
+                'linshiattr'=>[]//临时属性
             ],
             [
                 'name'=>'海姆',
@@ -123,9 +158,11 @@ class SszgController extends Controller
                 'baoshang'=>150,//暴伤
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
+                'kangbao'=>20,//抗暴
                 'zhiye'=>'肉盾',//职业
                 'xibie'=>'huo',//系别
                 'buff'=>[],//buff
+                'linshiattr'=>[]//临时属性
             ]
         ];
         $u1=[
@@ -142,9 +179,12 @@ class SszgController extends Controller
                 'baoshang'=>150,//暴伤
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
+                'kangbao'=>20,//抗暴
                 'zhiye'=>'肉盾',//职业
                 'xibie'=>'feng',//系别
                 'buff'=>[],//buff
+                'linshiattr'=>[]//临时属性
+
             ],
             [
                 'name'=>'潘',
@@ -159,9 +199,11 @@ class SszgController extends Controller
                 'baoshang'=>150,//暴伤
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
+                'kangbao'=>20,//抗暴
                 'zhiye'=>'辅助',//职业
                 'xibie'=>'feng',//系别
                 'buff'=>[],//buff
+                'linshiattr'=>[]//临时属性
             ],
             [
                 'name'=>'泰坦',
@@ -176,9 +218,11 @@ class SszgController extends Controller
                 'baoshang'=>150,//暴伤
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
+                'kangbao'=>20,//抗暴
                 'zhiye'=>'肉盾',//职业
                 'xibie'=>'shui',//系别
                 'buff'=>[],//buff
+                'linshiattr'=>[]//临时属性
             ],
             [
                 'name'=>'风王',
@@ -193,9 +237,11 @@ class SszgController extends Controller
                 'baoshang'=>150,//暴伤
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
+                'kangbao'=>20,//抗暴
                 'zhiye'=>'战士',//职业
                 'xibie'=>'feng',//系别
                 'buff'=>[],//buff
+                'linshiattr'=>[]//临时属性
             ],
             [
                 'name'=>'耶梦加得',
@@ -210,9 +256,11 @@ class SszgController extends Controller
                 'baoshang'=>150,//暴伤
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
+                'kangbao'=>20,//抗暴
                 'zhiye'=>'法师',//职业
                 'xibie'=>'shui',//系别
                 'buff'=>[],//buff
+                'linshiattr'=>[]//临时属性
             ]
         ];
 
