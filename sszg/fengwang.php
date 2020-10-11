@@ -74,48 +74,46 @@ class fengwang implements role{
 			'fashiup'=>isset($skill_info['fashiup'])?$skill_info['fashiup']:20,
 			'p'=>isset($skill_info['p'])?$skill_info['p']:198,
 		];
-		$bacevalue=$skill['p']/100*$this->role['a'];
+
+
 		$target=$this->target;
-		$releas_info=[//行动信息
-			'action_id'=>1,
-			'action_type'=>'wuliattack',//行动方式 物理攻击
+		$skill_info=[//行动信息
 			'releaser'=>$this,
 			'action_info'=>[
-
+				'id'=>1,//行动ID
+				'type'=>'wuliattack',//行动类型 物理攻击
 			],
 			'attack_info'=>[ //攻击信息
-				[
+				'main'=>[
+					'type'=>'wuli',//物理伤害
 					'novalueupkey'=>[],//指定不生效加成项
 					'valueupkey'=>[],//必定生效加成项
-					'type'=>'wuliattack',//物理攻击
-					'bacevalue'=>$bacevalue,//伤害基本值
+					'bacevalue'=>['a'=>$skill['p']],//数组则为系数 非数组则为固定值
 					'valuechange'=>[//伤害加成 或伤害降低
 						// 'fashiup'=>[
-						// 	'is'=>1,//概率
-						// 	'p'=>$fashiup,
+						// 	'p'=>$fashiup,//比例值
 						// 	'value'=>0,//固定值
 						// ]
 					],
 					'attributechange'=>[//附带属性增加或减少
 						// 'mingzhong'=>[//命中提升
-						// 	'is'=>1,
-						// 	'p'=>$fashiup,
+						// 	'p'=>0,
 						// 	'value'=>0,//固定值
 						// ]
 					]
 				],
 				[
 					'type'=>'buff',
-					'is'=>0.45,
+					'is'=>0.45,//概率
 					'buff'=>[
-						'name'=>'aup',//buff名
-	                    'buffid'=>'aup',
+						'name'=>'chenmo',//buff名
+	                    'buffid'=>'chenmo',
 	                    //同类型id相同仅生效一个效果最高的buff
-	                    'type'=>'buff',//增益 减益
+	                    'type'=>'debuff',//增益 减益
 	                    'is_qusan'=>true,//可驱散
 	                    'turn'=>1,//持续回合
 	                    'value'=>0,//固定值
-	                    'value_p'=>10,//百分比
+	                    'value_p'=>0,//百分比
 					]
 				]
 			]
@@ -124,128 +122,78 @@ class fengwang implements role{
 
 		//攻击法师增加额外
 		if($target->role['zhiye']=='法师'){
-
-			$releas_info['attack_info'][0]['valuechange']['fashiup']['is']=isset($releas_info['attack_info'][0]['valuechange']['fashiup']['is'])?1+$releas_info['attack_info'][0]['valuechange']['fashiup']['is']:1;
-			$releas_info['attack_info'][0]['valuechange']['fashiup']['p']=isset($releas_info['attack_info'][0]['valuechange']['fashiup']['p'])?$skill['fashiup']+$releas_info['attack_info'][0]['valueup']['fashiup']['p']:$skill['fashiup'];
-			$releas_info['attack_info'][0]['valuechange']['fashiup']['value']=isset($releas_info['attack_info'][0]['valuechange']['fashiup']['value'])?$skill['fashiup']+$releas_info['attack_info'][0]['valueup']['fashiup']['value']:$skill['fashiup'];
-			$releas_info['attack_info'][0]['valuechange']['fashiup']['type']='fashiup';
-
+			$skill_info['attack_info']['main']['valuechange']['fashiup']=['p'=>$skill['fashiup'],'value'=>0];
 		}
-		$this->attack($releas_info,$target);
+
+		//攻击接口
+		$this->attack($skill_info,$target);
 	}
 
 	//攻击
-	private function attack($releas_info,$target){
+	private function attack($info,$target){
 		//攻击装饰
-		$this->beforeAttack($releas_info,$target);
+		$this->beforeAttack($info,$target);
 
-		//暴伤加成
-		if(true){
-			$baojiarr=['wuliattack','mofaattack'];
-			foreach ($releas_info['attack_info'] as $k => $v) {
-				if(in_array($v['type'],$baojiarr)){
-					if(isset($v['valuechange']['baoshangup'])){
-						$releas_info['attack_info'][$k]['valuechange']['baoshangup']['p']=$releas_info['attack_info'][$k]['valuechange']['baoshangup']['p']+$releas_info['releaser']->getAttr('baoshang');
-					}else{
-						$releas_info['attack_info'][$k]['valuechange']['baoshangup']=[
-							'is'=>1,
-							'p'=>$releas_info['releaser']->getAttr('baoshang'),
-							'value'=>0,
-							'type'=>'baoshangup'
-						];
-					}
-				}
-			}
-		}		
-
-		//计算系别克制
-		// if(in_array($releas_info['attack_info']['type'], $this->xibie['type'])||in_array($target->role['xibie'],$this->xibie[$releas_info['attack_info']['releaser']->role['xibie']])){
-		// 	$releas_info['attack_info']['releaser']->role['mingzhong']=$releas_info['attack_info']['releaser']->role['mingzhong']+$this->xibie['xiaoguo']['mingzhongUP'];
-
-		// 	$releas_info['attack_info']['valueup']['xibieup']=[
-		// 		'type'=>'xibieup',
-		// 		'is'=>true,//是否生效
-		// 		'p'=>$this->xibie['xiaoguo']['shanghaiUP']+100,
-		// 		'value'=>0,//固定值
-		// 	];
-
-		// 	//命中加成
-		// 	$releas_info['attack_info']['additional']['mingzhong']=$releas_info['attack_info']['releaser']->role['baoshang']+$this->xibie['xiaoguo']['mingzhongUP'];
-		// }
-
-		// //物理伤害加成
-		// if($releas_info['attack_info']['type']=='wuliattack'){
-		// 	$releas_info['attack_info']['valueup']['wuliup']=[
-		// 		'type'=>'wuliup',
-		// 		'is'=>true,//是否生效
-		// 		'p'=>$this->role['wushang']+100,
-		// 		'value'=>0,//固定值
-		// 	];
-		// }
-
-		// //法术伤害加成
-		// if($releas_info['attack_info']['type']=='fashu'){
-
-		// 	$releas_info['attack_info']['valueup']['fashuup']=[
-		// 		'type'=>'fashuup',
-		// 		'is'=>true,//是否生效
-		// 		'p'=>$this->role['fashang']+100,
-		// 		'value'=>0,//固定值
-		// 	];
-		// }
-
-
-
-		echo $releas_info['releaser']->role['name'].'攻击了'.$target->role['name'].'<br>';
+		echo $info['releaser']->role['name'].'攻击了'.$target->role['name'].'<br>';
 
 		//调用目标的 受到攻击接口
-		$target->underattack($releas_info);
+		$target->underattack($info);
 
-		//攻击装饰
-		$this->afterAttack($releas_info,$target);
+		//攻击结束装饰
+		$this->afterAttack($info,$target);
 	}
 
 	//受到攻击
-	public function underattack($releas_info){
-		// unset($releas_info['releaser']);
-		print_r($releas_info);
+	public function underattack($attack_info){
+		
+		echo $this->role['name'].'受到来自'.$attack_info['releaser']->role['name'].'的攻击<br>';
 
-		// echo $this->role['name'].'受到'.$releas_info['releaser']->role['name'].'攻击<br>';
+		$this->underAttackWork($attack_info);
+	}
+
+	//受到攻击伤害结算
+	public function underAttackWork($attack_info){
+		unset($attack_info['releaser']);
+
+		print_r($attack_info);die;
+
+		//暴伤加成
+		if(true){
+			$upname='baojiup';//加成名
+			$baojiarr=['wuli','mofa'];//指定默认可暴击的伤害类型
+			$untype=['buff'];//指定非伤害信息
+
+			foreach ($attack_info['attack_info'] as $k => $v) {
+
+				//跳过非伤害的信息包
+				if(!in_array($v['type'],$untype)){ 
+
+					$isbaojiup=false;
+					$isbaojiup=in_array($v['type'],$baojiarr)?true:$isbaojiup;
+					$isbaojiup=in_array($upname,$v['novalueupkey'])?false:$isbaojiup;
+					$isbaojiup=in_array($upname,$v['valueupkey'])?true:$isbaojiup;
+					
+					if($isbaojiup){
+						//判定为可暴击伤害 计算暴伤
+
+						if(isset($v['valuechange']['baoshangup'])){
+							die;
+							$attack_info['attack_info'][$k]['valuechange']['baoshangup']['p']=$attack_info['attack_info'][$k]['valuechange']['baoshangup']['p']+$attack_info['releaser']->getAttr('baoshang');
+						}else{
+							$attack_info['attack_info'][$k]['valuechange']['baoshangup']=[
+								'p'=>$attack_info['releaser']->getAttr('baoshang'),
+								'value'=>0,
+							];
+						}
 
 
-
-		$baoji_=true;
-
-		// 'novalueupkey' 指定该伤害的不受加成项
-		if (isset($releas_info['attack_info'][0]['novalueupkey'])) {
-			if(in_array('baoshangup',$releas_info['attack_info'][0]['novalueupkey']) ||in_array('any',$releas_info['attack_info'][0]['novalueupkey']) ){
-					$baoji_=false;
+					}
 				}
-		}
-		// 'novalueupkey' 指定该必定生效加成项
-		if (isset($releas_info['attack_info'][0]['valueupkey'])) {
-			if(in_array('baoshangup',$releas_info['attack_info'][0]['valueupkey'])||in_array('any',$releas_info['attack_info'][0]['valueupkey']) ){
-					$baoji_=true;
-				}
+				
+					
+			}
 		}
 
-
-		if($baoji_){
-			//暴击率
-			$baojiup=$this->getArrayValue('attributechange.baojiup',$releas_info['attack_info'][0]);
-			$baojiup=$baojiup!='undefined'?$baojiup:0;
-			$baojiv=$releas_info['releaser']->getAttr('baoji')+$baojiup;
-
-			//暴伤
-			$baoshangup=$this->getArrayValue('attributechange.baoshangup',$releas_info['attack_info'][0]);
-			$baoshangup=$baoshangup!='undefined'?$baoshangup:0;
-			$baoshangv=$releas_info['releaser']->getAttr('baoshang')+$baojiup;
-
-		}
-
-		// print_r($releas_info['attack_info']);
-
-		$this->change_h(-$releas_info['attack_info'][0]['bacevalue']);
 	}
 
 	public function change_h($value){
