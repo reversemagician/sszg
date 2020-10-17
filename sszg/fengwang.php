@@ -85,10 +85,10 @@ class fengwang implements role{
 			],
 			'attack_info'=>[ //攻击信息
 				'main'=>[
-					'type'=>'wuli',//物理伤害
+					'type'=>'wushang',//物理伤害
 					'novalueupkey'=>[],//指定不生效加成项
 					'valueupkey'=>[],//必定生效加成项
-					'bacevalue'=>['a'=>$skill['p']],//key为value时为固定值伤害
+					'bacevalue'=>[$this->role['id'].'.a'=>$skill['p']],//key为value时为固定值伤害
 					'valuechange'=>[//伤害加成 或伤害降低
 						// 'fashiup'=>[
 						// 	'p'=>$fashiup,//比例值
@@ -100,6 +100,10 @@ class fengwang implements role{
 							'p'=>0,
 							'value'=>60,//固定值
 						]
+					],
+					'other'=>[//其他属性
+						'baoji',//必定暴击
+						// 'bubaoji',//必定不暴击
 					]
 				],
 				[
@@ -155,79 +159,164 @@ class fengwang implements role{
 	public function underAttackWork($attack_info){
 
 		// unset($attack_info['releaser']);
-		// print_r($attack_info);die;
+		print_r($attack_info);
 
 
 
 
 		$untype=['buff'];//指定非伤害信息
 
-		//循环攻击包信息
+		$up_arr=[];//伤害加成结果
+		//伤害加成计算 循环攻击包信息
 		foreach ($attack_info['attack_info'] as $k => $v) {
+
+			
 			
 			//跳过非伤害的信息包
 			if(!in_array($v['type'],$untype)){ 
 				//暴击信息
-				if(true){
-					$upname='baoji';//加成名
-					$baojiarr=['wuli','mofa'];//指定默认可暴击的伤害类型
-					$isbaojiup=false;
-					$isbaojiup=in_array($v['type'],$baojiarr)?true:$isbaojiup;
-					$isbaojiup=in_array($upname,$v['novalueupkey'])?false:$isbaojiup;
-					$isbaojiup=in_array($upname,$v['valueupkey'])?true:$isbaojiup;
-					
-					if($isbaojiup){
-						//判定为可暴击伤害 计算暴伤
+				
+				$up_arr[$k]['baoji']=$this->baoji_jiesuan($attack_info['releaser'],$v);
 
-						$baoshang=0;//暴击伤害
-						if(isset($v['attributechange']['baoshang'])){
-							$baoshang=$v['attributechange']['baoshang']['value']+$v['attributechange']['baoshang']['p']*$attack_info['releaser']->getAttr('baoshang')/100+$attack_info['releaser']->getAttr('baoshang');
+				//物理伤害加成加成
+				if (true) {
+					$upname='wushang';//加成名
+					$arr=['wushang'];//指定默认生效伤害类型
+					$isup=false;
+					$isup=in_array($v['type'],$arr)?true:$isup;
+					$isup=in_array($upname,$v['novalueupkey'])?false:$isup;//指定物理加成不生效
+					$isup=in_array($upname,$v['valueupkey'])?true:$isup;//指定物理加成生效
+
+					//记录数据
+					$up_result=['shengxiao'=>$isup];
+
+					if ($isup) {
+						$up=0;//加成
+						if(isset($v['attributechange'][$upname])){
+							$up=$v['attributechange'][$upname]['value']+$v['attributechange'][$upname]['p']*$attack_info['releaser']->getAttr($upname)/100+$attack_info['releaser']->getAttr($upname);
 						}else{
-							$baoshang=$attack_info['releaser']->getAttr('baoshang');
+							$up=$attack_info['releaser']->getAttr($upname);
 						}
-
-						$baoji=0;//暴击率
-						if(isset($v['attributechange']['baoji'])){
-							$baoji=$v['attributechange']['baoji']['value']+$v['attributechange']['baoji']['p']*$attack_info['releaser']->getAttr('baoji')/100+$attack_info['releaser']->getAttr('baoji');
-						}else{
-							$baoji=$attack_info['releaser']->getAttr('baoji');
-						}
-
-						
-					}
-					$baoji=$baoji>=100?100:$baoji;
-					
-					$baoji_p=[
-						'baoji'=>$baoji,
-						'bubaoji'=>100-$baoji,
-					];
-					//暴击命中
-					$is_baoji= $this->probability($baoji_p);
-					echo $is_baoji.'<br>';
-
-					//抗暴命中
-					if($is_baoji=='baoji'){
-						echo $this->getAttr('kangbao');
-						$kangbao=$this->getAttr('kangbao')>100?100:$this->getAttr('kangbao');
-						$kangbao_p=[
-							'bubaoji'=>$kangbao,
-							'baoji'=>100-$kangbao,
-						];
-						print_r($kangbao_p);
-						$is_baoji= $this->probability($baoji_p);
-						echo $is_baoji.'<br>';
+						//记录数据
+						$up_result['up']=$up<0?0:$up;
 					}
 
+					$up_arr[$k][$upname]=$up_result;
 				}
-				
 
+				// 法术伤害加成加成
+				if (true) {
+					$upname='fashang';//加成名
+					$arr=['fashang'];//指定默认生效伤害类型
+					$isup=false;
+					$isup=in_array($v['type'],$arr)?true:$isup;
+					$isup=in_array($upname,$v['novalueupkey'])?false:$isup;//指定物理加成不生效
+					$isup=in_array($upname,$v['valueupkey'])?true:$isup;//指定物理加成生效
 
-				
+					//记录数据
+					$up_result=['shengxiao'=>$isup];
+
+					if ($isup) {
+						$up=0;//加成
+						if(isset($v['attributechange'][$upname])){
+							$up=$v['attributechange'][$upname]['value']+$v['attributechange'][$upname]['p']*$attack_info['releaser']->getAttr($upname)/100+$attack_info['releaser']->getAttr($upname);
+						}else{
+							$up=$attack_info['releaser']->getAttr($upname);
+						}
+						//记录数据
+						$up_result['up']=$up<0?0:$up;
+					}
+
+					$up_arr[$k][$upname]=$up_result;
+				}
+
+				print_r($up_arr);die;
 					
 			}
 		}
 
 	}
+
+
+	/**
+	 *暴击结算 
+	 *@param array $attack_info_package 攻击者 
+	 *@param array $attack_info_package 攻击信息包 
+	 *@return array $baoji_result 暴击结算信息
+	 */
+	public function baoji_jiesuan($attacker,$attack_info_package){
+
+		$upname='baoji';
+		$baojiarr=['wushang','fashang'];//指定默认可暴击的伤害类型
+		$isbaojiup=false;
+		$isbaojiup=in_array($v['type'],$baojiarr)?true:$isbaojiup;
+		$isbaojiup=in_array($upname,$v['novalueupkey'])?false:$isbaojiup;//判断是否指定不结算暴击
+		$isbaojiup=in_array($upname,$v['valueupkey'])?true:$isbaojiup;//判断是否指定必定结算暴击
+
+		//暴击结果数据记录
+		$baoji_result=[
+			'shengxiao'=>$isbaojiup,//是否可暴击
+		];
+		
+		if($isbaojiup){
+			//判定为可暴击伤害 结算暴击
+
+			//暴击伤害
+			$baoshang=0;
+			if(isset($v['attributechange']['baoshang'])){
+				$baoshang=$v['attributechange']['baoshang']['value']+$v['attributechange']['baoshang']['p']*$attacker->getAttr('baoshang')/100+$attacker->getAttr('baoshang');
+			}else{
+				$baoshang=$attacker->getAttr('baoshang');
+			}
+
+			//暴击率
+			$baoji=0;
+			if(isset($v['attributechange']['baoji'])){
+				$baoji=$v['attributechange']['baoji']['value']+$v['attributechange']['baoji']['p']*$attacker->getAttr('baoji')/100+$attacker->getAttr('baoji');
+			}else{
+				$baoji=$attacker->getAttr('baoji');
+			}
+
+			
+
+			//暴击命中
+			$baoji=$baoji>=100?100:$baoji;
+			$baoji_p=[
+				'baoji'=>$baoji,
+				'bubaoji'=>100-$baoji,
+			];
+			$is_baoji= $this->probability($baoji_p);
+			//数据记录
+			$baoji_result['baoji']=$baoji;//暴击率
+			$baoji_result['up']=$baoshang;//暴伤
+			$baoji_result['baojimingzhong']=$is_baoji=='baoji'?true:false;//暴击命中
+			$baoji_result['result']=$is_baoji;//暴击结果
+
+			//抗暴命中
+			if($is_baoji=='baoji'){
+				$kangbao=$this->getAttr('kangbao')>100?100:$this->getAttr('kangbao');
+				$kangbao_p=[
+					'bubaoji'=>$kangbao,
+					'baoji'=>100-$kangbao,
+				];
+				$is_baoji= $this->probability($baoji_p);
+
+				//数据记录
+				$baoji_result['kangbao']=$kangbao;//抗暴率
+				$baoji_result['kangbaomingzhong']=$is_baoji=='bubaoji'?true:false;//抗暴命中
+				$baoji_result['result']=$is_baoji;//暴击结果
+				
+			}
+		}
+
+		//必定暴击和必定不暴击参数
+		$baoji_result['result']=in_array('baoji',$v['other'])?'baoji':$baoji_result['result'];
+		$baoji_result['result']=in_array('bubaoji',$v['other'])?'bubaoji':$baoji_result['result'];					
+
+		return $baoji_result;//暴击结果
+		
+	}
+
 
 	//血量改变
 	public function change_h($value){

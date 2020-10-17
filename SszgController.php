@@ -69,7 +69,8 @@ class SszgController extends Controller
         ];
 
         $u0=[
-            [
+            [   
+                'id'=>'fengwang0',
                 'name'=>'风王',
                 'position'=>13,//行列
                 'h_max'=>1000000,
@@ -89,6 +90,7 @@ class SszgController extends Controller
                 'linshiattr'=>$linshiattr//临时属性
             ],
             [
+                'id'=>'jiushen0',
                 'name'=>'酒神',
                 'position'=>23,//行列
                 'h_max'=>1000000,
@@ -108,6 +110,7 @@ class SszgController extends Controller
                 'linshiattr'=>[]//临时属性
             ],
             [
+                'id'=>'neza0',
                 'name'=>'哪吒',
                 'position'=>33,//行列
                 'h_max'=>1000000,
@@ -127,6 +130,7 @@ class SszgController extends Controller
                 'linshiattr'=>[]//临时属性
             ],
             [
+                'id'=>'lafei0',
                 'name'=>'拉斐尔',
                 'position'=>22,//行列
                 'h_max'=>1000000,
@@ -146,6 +150,7 @@ class SszgController extends Controller
                 'linshiattr'=>[]//临时属性
             ],
             [
+                'id'=>'haimu0',
                 'name'=>'海姆',
                 'position'=>21,//行列
                 'h_max'=>1000000,
@@ -167,6 +172,7 @@ class SszgController extends Controller
         ];
         $u1=[
             [
+                'id'=>'xiongmao1',
                 'name'=>'熊猫',
                 'position'=>11,//行列
                 'h_max'=>1000000,
@@ -187,6 +193,7 @@ class SszgController extends Controller
 
             ],
             [
+                'id'=>'pan1',
                 'name'=>'潘',
                 'position'=>11,//行列
                 'h_max'=>1000000,
@@ -206,6 +213,7 @@ class SszgController extends Controller
                 'linshiattr'=>[]//临时属性
             ],
             [
+                'id'=>'taitan1',
                 'name'=>'泰坦',
                 'position'=>11,//行列
                 'h_max'=>1000000,
@@ -225,6 +233,7 @@ class SszgController extends Controller
                 'linshiattr'=>[]//临时属性
             ],
             [
+                'id'=>'fengwang1',
                 'name'=>'风王',
                 'position'=>11,//行列
                 'h_max'=>1000000,
@@ -244,6 +253,7 @@ class SszgController extends Controller
                 'linshiattr'=>[]//临时属性
             ],
             [
+                'id'=>'yemeng1',
                 'name'=>'耶梦加得',
                 'position'=>11,//行列
                 'h_max'=>1000000,
