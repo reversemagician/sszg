@@ -92,17 +92,20 @@ class fengwang implements role{
 					'valuechange'=>[//伤害加成 或伤害降低
 						// 'fashiup'=>[
 						// 	'p'=>$fashiup,//比例值
-						// 	'value'=>0,//固定值
 						// ]
 					],
 					'attributechange'=>[//附带属性增加或减少
 						'baoshang'=>[//命中提升
 							'p'=>0,
 							'value'=>60,//固定值
-						]
+						],
+						'wushang'=>[
+							'p'=>0,
+							'value'=>20,
+						],
 					],
 					'other'=>[//其他属性
-						'baoji',//必定暴击
+						// 'baoji',//必定暴击
 						// 'bubaoji',//必定不暴击
 					]
 				],
@@ -126,7 +129,7 @@ class fengwang implements role{
 
 		//攻击法师增加额外
 		if($target->role['zhiye']=='法师'){
-			$skill_info['attack_info']['main']['valuechange']['fashiup']=['p'=>$skill['fashiup'],'value'=>0];
+			$skill_info['attack_info']['main']['valuechange']['fashiup']=['p'=>$skill['fashiup']];
 		}
 
 		//攻击接口
@@ -161,81 +164,119 @@ class fengwang implements role{
 		// unset($attack_info['releaser']);
 		print_r($attack_info);
 
+		
 
-
-
-		$untype=['buff'];//指定非伤害信息
-
-		$up_arr=[];//伤害加成结果
+		
 		//伤害加成计算 循环攻击包信息
+		$untype=['buff'];//指定非伤害信息
+		$up_arr=[];//伤害加成结果
 		foreach ($attack_info['attack_info'] as $k => $v) {
 
 			
 			
 			//跳过非伤害的信息包
 			if(!in_array($v['type'],$untype)){ 
-				//暴击信息
 				
-				$up_arr[$k]['baoji']=$this->baoji_jiesuan($attack_info['releaser'],$v);
+				//伤害加成信息
+					$up_arr[$k]['up']=[];//加成信息
+					// 暴击结算信息
+					$up_arr[$k]['up']=array_merge($up_arr[$k]['up'],$this->baoshang_jiacheng_jiesuan($attack_info['releaser'],$v));
 
-				//物理伤害加成加成
-				if (true) {
-					$upname='wushang';//加成名
-					$arr=['wushang'];//指定默认生效伤害类型
-					$isup=false;
-					$isup=in_array($v['type'],$arr)?true:$isup;
-					$isup=in_array($upname,$v['novalueupkey'])?false:$isup;//指定物理加成不生效
-					$isup=in_array($upname,$v['valueupkey'])?true:$isup;//指定物理加成生效
+					//物理、法术伤害加成
+					$up_arr[$k]['up']=array_merge($up_arr[$k]['up'],$this->wufashang_jiacheng_jiesuan($attack_info['releaser'],$v));
 
-					//记录数据
-					$up_result=['shengxiao'=>$isup];
+					//其他附带伤害加成项结算
+					$up_arr[$k]['up']=array_merge($up_arr[$k]['up'],$this->qita_jiacheng_jiesuan($attack_info['releaser'],$v));
 
-					if ($isup) {
-						$up=0;//加成
-						if(isset($v['attributechange'][$upname])){
-							$up=$v['attributechange'][$upname]['value']+$v['attributechange'][$upname]['p']*$attack_info['releaser']->getAttr($upname)/100+$attack_info['releaser']->getAttr($upname);
-						}else{
-							$up=$attack_info['releaser']->getAttr($upname);
-						}
-						//记录数据
-						$up_result['up']=$up<0?0:$up;
-					}
-
-					$up_arr[$k][$upname]=$up_result;
-				}
-
-				// 法术伤害加成加成
-				if (true) {
-					$upname='fashang';//加成名
-					$arr=['fashang'];//指定默认生效伤害类型
-					$isup=false;
-					$isup=in_array($v['type'],$arr)?true:$isup;
-					$isup=in_array($upname,$v['novalueupkey'])?false:$isup;//指定物理加成不生效
-					$isup=in_array($upname,$v['valueupkey'])?true:$isup;//指定物理加成生效
-
-					//记录数据
-					$up_result=['shengxiao'=>$isup];
-
-					if ($isup) {
-						$up=0;//加成
-						if(isset($v['attributechange'][$upname])){
-							$up=$v['attributechange'][$upname]['value']+$v['attributechange'][$upname]['p']*$attack_info['releaser']->getAttr($upname)/100+$attack_info['releaser']->getAttr($upname);
-						}else{
-							$up=$attack_info['releaser']->getAttr($upname);
-						}
-						//记录数据
-						$up_result['up']=$up<0?0:$up;
-					}
-
-					$up_arr[$k][$upname]=$up_result;
-				}
-
-				print_r($up_arr);die;
+				
+				//受攻击伤害减免计算
+					$up_arr[$k]['down']=[];//伤害减免信息
 					
 			}
 		}
+		print_r($up_arr);die;
 
 	}
+
+	/**
+	 *其他伤害加成结算 
+	 *@param array $attack_info_package 攻击者 
+	 *@param array $attack_info_package 攻击信息包 
+	 *@return array $result 物伤信息
+	 */
+	public function qita_jiacheng_jiesuan($attacker,$attack_info_package){
+		$up_result=[];
+		$paichu=['wushang','fashang','baoshang'];//排除已结算的项
+		foreach ($attack_info_package['valuechange'] as $k => $v) {
+			if(!in_array($k,$paichu)){
+				$up_result[$k]=[
+					'shengxiao'=>true,
+					'up'=>$v['p'],
+				];
+			}
+		}
+		return $up_result;
+	}
+
+	/**
+	 *物理、法术伤害加成结算 
+	 *@param array $attack_info_package 攻击者 
+	 *@param array $attack_info_package 攻击信息包 
+	 *@return array $result 物伤信息
+	 */
+	public function wufashang_jiacheng_jiesuan($attacker,$attack_info_package){
+			
+			$up_result=[];
+
+		//物理伤害加成
+			$upname='wushang';//加成名
+			$arr=[$upname];//指定默认生效伤害类型
+			$isup=false;
+			$isup=in_array($attack_info_package['type'],$arr)?true:$isup;
+			$isup=in_array($upname,$attack_info_package['novalueupkey'])?false:$isup;//指定物理加成不生效
+			$isup=in_array($upname,$attack_info_package['valueupkey'])?true:$isup;//指定物理加成生效
+
+
+			if ($isup) {
+				$up=0;//加成
+				if(isset($attack_info_package['attributechange'][$upname])){
+					$up=$attack_info_package['attributechange'][$upname]['value']+$attack_info_package['attributechange'][$upname]['p']*$attacker->getAttr($upname)/100+$attacker->getAttr($upname);
+				}else{
+					$up=$attacker->getAttr($upname);
+				}
+				//记录数据
+				$up_result[$upname]=['shengxiao'=>$isup];
+				$up_result[$upname]['up']=$up<0?0:$up;
+			}
+
+		//法伤伤害加成
+			$upname='fashang';//加成名
+			$arr=[$upname];//指定默认生效伤害类型
+			$isup=false;
+			$isup=in_array($attack_info_package['type'],$arr)?true:$isup;
+			$isup=in_array($upname,$attack_info_package['novalueupkey'])?false:$isup;//指定物理加成不生效
+			$isup=in_array($upname,$attack_info_package['valueupkey'])?true:$isup;//指定物理加成生效
+
+			
+
+			if ($isup) {
+				
+				$up=0;//加成
+				if(isset($attack_info_package['attributechange'][$upname])){
+					$up=$attack_info_package['attributechange'][$upname]['value']+$attack_info_package['attributechange'][$upname]['p']*$attacker->getAttr($upname)/100+$attacker->getAttr($upname);
+				}else{
+					$up=$attacker->getAttr($upname);
+				}
+
+				//记录数据
+				$up_result[$upname]=['shengxiao'=>$isup];
+				$up_result[$upname]['up']=$up<0?0:$up;
+			}
+
+		return $up_result;
+	}
+
+
 
 
 	/**
@@ -244,18 +285,18 @@ class fengwang implements role{
 	 *@param array $attack_info_package 攻击信息包 
 	 *@return array $baoji_result 暴击结算信息
 	 */
-	public function baoji_jiesuan($attacker,$attack_info_package){
+	public function baoshang_jiacheng_jiesuan($attacker,$attack_info_package){
 
-		$upname='baoji';
+		$upname='baoshang';
 		$baojiarr=['wushang','fashang'];//指定默认可暴击的伤害类型
 		$isbaojiup=false;
-		$isbaojiup=in_array($v['type'],$baojiarr)?true:$isbaojiup;
-		$isbaojiup=in_array($upname,$v['novalueupkey'])?false:$isbaojiup;//判断是否指定不结算暴击
-		$isbaojiup=in_array($upname,$v['valueupkey'])?true:$isbaojiup;//判断是否指定必定结算暴击
+		$isbaojiup=in_array($attack_info_package['type'],$baojiarr)?true:$isbaojiup;
+		$isbaojiup=in_array($upname,$attack_info_package['novalueupkey'])?false:$isbaojiup;//判断是否指定不结算暴击
+		$isbaojiup=in_array($upname,$attack_info_package['valueupkey'])?true:$isbaojiup;//判断是否指定必定结算暴击
 
 		//暴击结果数据记录
 		$baoji_result=[
-			'shengxiao'=>$isbaojiup,//是否可暴击
+			'can'=>$isbaojiup,//是否可暴击
 		];
 		
 		if($isbaojiup){
@@ -263,16 +304,16 @@ class fengwang implements role{
 
 			//暴击伤害
 			$baoshang=0;
-			if(isset($v['attributechange']['baoshang'])){
-				$baoshang=$v['attributechange']['baoshang']['value']+$v['attributechange']['baoshang']['p']*$attacker->getAttr('baoshang')/100+$attacker->getAttr('baoshang');
+			if(isset($attack_info_package['attributechange']['baoshang'])){
+				$baoshang=$attack_info_package['attributechange']['baoshang']['value']+$attack_info_package['attributechange']['baoshang']['p']*$attacker->getAttr('baoshang')/100+$attacker->getAttr('baoshang');
 			}else{
 				$baoshang=$attacker->getAttr('baoshang');
 			}
 
 			//暴击率
 			$baoji=0;
-			if(isset($v['attributechange']['baoji'])){
-				$baoji=$v['attributechange']['baoji']['value']+$v['attributechange']['baoji']['p']*$attacker->getAttr('baoji')/100+$attacker->getAttr('baoji');
+			if(isset($attack_info_package['attributechange']['baoji'])){
+				$baoji=$attack_info_package['attributechange']['baoji']['value']+$v['attributechange']['baoji']['p']*$attacker->getAttr('baoji')/100+$attacker->getAttr('baoji');
 			}else{
 				$baoji=$attacker->getAttr('baoji');
 			}
@@ -310,10 +351,12 @@ class fengwang implements role{
 		}
 
 		//必定暴击和必定不暴击参数
-		$baoji_result['result']=in_array('baoji',$v['other'])?'baoji':$baoji_result['result'];
-		$baoji_result['result']=in_array('bubaoji',$v['other'])?'bubaoji':$baoji_result['result'];					
+		$baoji_result['result']=in_array('baoji',$attack_info_package['other'])?'baoji':$baoji_result['result'];
+		$baoji_result['result']=in_array('bubaoji',$attack_info_package['other'])?'bubaoji':$baoji_result['result'];
 
-		return $baoji_result;//暴击结果
+		$baoji_result['shengxiao']=	$baoji_result['result']=='baoji'?true:false;		
+
+		return ['baoshang'=>$baoji_result];//暴击结果
 		
 	}
 
@@ -327,13 +370,14 @@ class fengwang implements role{
 		
 	}
 
-	//获取属性
-	public function getAttr($attr){
-		$rang=['h_max','h','a','d','s','mingzhong','baoji','baoshang','wushang','fashang','kangbao'];
-		if(!in_array($attr, $rang)){
-			return null;
-		}
+	//获取属性值 $bace不为空代表获取基础属性
+	public function getAttr($attr,$bace=''){
 		$name=$attr;
+
+		if($bace!=''){
+			//只返回基础属性
+			return isset($this->role[$name])?$this->role[$name]:0;
+		}
 
 		//buff属性
 		$buff=[];
@@ -356,7 +400,11 @@ class fengwang implements role{
 			}
 		}
 
-		return array_sum($buff)+array_sum($linshi)+$this->role[$name];
+		
+		// 返回总属性
+		return array_sum($buff)+array_sum($linshi)+isset($this->role[$name])?$this->role[$name]:0;
+		
+		
 
 	}
 
