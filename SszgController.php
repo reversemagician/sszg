@@ -5,6 +5,7 @@ namespace App\Http\Controllers\admin;
 use App\Http\Controllers\Controller;
 use App\myclass\sszg\sszg;
 use App\myclass\sszg\fengwang;
+use App\myclass\sszg\qipan;
 use App\myclass\sszg\attack;
 use DB;
 
@@ -274,9 +275,16 @@ class SszgController extends Controller
             ]
         ];
 
-        $fengwang=new fengwang($u0[0],$xibie_kezhi);
-        $xiongmao=new fengwang($u1[4],$xibie_kezhi);
-        $fengwang->addTarget($xiongmao);
+        $qipan=new qipan; //棋盘
+        $qipan->xibie($xibie_kezhi);
+
+        $fengwang=new fengwang($u0[0]);
+        $fengwang->qipan($qipan);
+        $yemeng1=new fengwang($u1[4]);
+        $yemeng1->qipan($qipan);
+
+        $qipan->addRole($fengwang);
+        $qipan->addRole($yemeng1);
 
         $fengwang->round();//风王的回合
         // probability 概率的英文

@@ -3,8 +3,7 @@ namespace App\myclass\sszg;
 
 class fengwang implements role{
 	public $role=[];
-	public $xibie=[];
-	public $target=[];
+	public $qipan='';
 	public $skill=[
 		'skill1'=>[
 			'name'=>'风王的爪子',
@@ -14,20 +13,19 @@ class fengwang implements role{
 		],
 	];
 
-	public function __construct($role_info,$xibie){
+	public function __construct($role_info){
 		$this->role=$role_info;
-		$this->xibie=$xibie;
 	}
 
-	//增加目标
-	public function addTarget($target){
-		$this->target=$target;
+	//棋盘
+	public function qipan($qipan){
+		$this->qipan=$qipan;
 	}
 
 	//装饰 行动之前
 	public function beforeAction($action_type,$self){
-		echo '小心点！'.$self->role['name'].'正在活动她的爪子,<br>';
-		$self->role['name']='史芬克斯';
+		// echo '小心点！'.$self->role['name'].'正在活动她的爪子,<br>';
+		// $self->role['name']='史芬克斯';
 	}
 	//装饰 行动之后
 	public function afterAction($action_type,$self){
@@ -35,11 +33,11 @@ class fengwang implements role{
 	}
 	//装饰 攻击之前
 	public function beforeAttack($releas_info,$target){
-		echo $releas_info['releaser']->role['name'].'出手了。<br>';
+		// echo $releas_info['releaser']->role['name'].'出手了。<br>';
 	}
 	//装饰 攻击之后
 	public function afterAttack($releas_info,$target){
-		echo $releas_info['releaser']->role['name'].'回合结束。<br>';
+		// echo $releas_info['releaser']->role['name'].'回合结束。<br>';
 	}
 
 	//回合开始
@@ -76,9 +74,9 @@ class fengwang implements role{
 		];
 
 
-		$target=$this->target;
+		$target=$this->qipan->getRole('yemeng1');
 		$skill_info=[//行动信息
-			'releaser'=>$this,
+			'releaser'=>$this->role['id'],
 			'action_info'=>[
 				'id'=>1,//行动ID
 				'type'=>'wuliattack',//行动类型 物理攻击
@@ -88,7 +86,7 @@ class fengwang implements role{
 					'type'=>'wushang',//物理伤害
 					'novalueupkey'=>[],//指定不生效加成项
 					'valueupkey'=>[],//必定生效加成项
-					'bacevalue'=>[$this->role['id'].'.a'=>$skill['p']],//key为value时为固定值伤害
+					'bacevalue'=>[$this->role['id'].'.h'=>$skill['p']],//key为value时为固定值伤害
 					'valuechange'=>[//伤害加成 或伤害降低
 						// 'fashiup'=>[
 						// 	'p'=>$fashiup,//比例值
@@ -141,7 +139,7 @@ class fengwang implements role{
 		//攻击装饰
 		$this->beforeAttack($info,$target);
 
-		echo $info['releaser']->role['name'].'攻击了'.$target->role['name'].'<br>';
+		echo $this->role['name'].'攻击了'.$target->role['name'].'<br>';
 
 		//调用目标的 受到攻击接口
 		$target->underattack($info);
@@ -153,7 +151,7 @@ class fengwang implements role{
 	//受到攻击
 	public function underattack($attack_info){
 		
-		echo $this->role['name'].'受到来自'.$attack_info['releaser']->role['name'].'的攻击<br>';
+		echo $this->role['name'].'受到的攻击<br>';
 
 		$this->underAttackWork($attack_info);
 	}
@@ -162,7 +160,7 @@ class fengwang implements role{
 	public function underAttackWork($attack_info){
 
 		// unset($attack_info['releaser']);
-		print_r($attack_info);
+		// print_r($attack_info);
 
 		
 
@@ -170,33 +168,41 @@ class fengwang implements role{
 		//伤害加成计算 循环攻击包信息
 		$untype=['buff'];//指定非伤害信息
 		$up_arr=[];//伤害加成结果
+		$attacker=$this->qipan->getRole($attack_info['releaser']);
 		foreach ($attack_info['attack_info'] as $k => $v) {
 
 			
 			
 			//跳过非伤害的信息包
 			if(!in_array($v['type'],$untype)){ 
-				
+
+				$up_arr[$k]['bace']=$this->attack_bace($v['bacevalue']);//基础伤害
+				echo $up_arr[$k]['bace'];
 				//伤害加成信息
 					$up_arr[$k]['up']=[];//加成信息
 					// 暴击结算信息
-					$up_arr[$k]['up']=array_merge($up_arr[$k]['up'],$this->baoshang_jiacheng_jiesuan($attack_info['releaser'],$v));
+					$up_arr[$k]['up']=array_merge($up_arr[$k]['up'],$this->baoshang_jiacheng_jiesuan($attacker,$v));
 
 					//物理、法术伤害加成
-					$up_arr[$k]['up']=array_merge($up_arr[$k]['up'],$this->wufashang_jiacheng_jiesuan($attack_info['releaser'],$v));
+					$up_arr[$k]['up']=array_merge($up_arr[$k]['up'],$this->wufashang_jiacheng_jiesuan($attacker,$v));
 
 					//其他附带伤害加成项结算
-					$up_arr[$k]['up']=array_merge($up_arr[$k]['up'],$this->qita_jiacheng_jiesuan($attack_info['releaser'],$v));
+					$up_arr[$k]['up']=array_merge($up_arr[$k]['up'],$this->qita_jiacheng_jiesuan($attacker,$v));
 
 				
 				//受攻击伤害减免计算
 					$up_arr[$k]['down']=[];//伤害减免信息
+
+					//物理、法术减免
+					$up_arr[$k]['up']=array_merge($up_arr[$k]['up'],$this->wufashang_jiacheng_jiesuan($attacker,$v));	
 					
 			}
 		}
 		print_r($up_arr);die;
 
 	}
+
+
 
 	/**
 	 *其他伤害加成结算 
@@ -358,6 +364,19 @@ class fengwang implements role{
 
 		return ['baoshang'=>$baoji_result];//暴击结果
 		
+	}
+
+
+	//攻击基本伤害
+	public function attack_bace($info){
+		$bace=0;
+		foreach ($info as $k => $v) {
+			$one = explode('.',$k);
+
+			// $one[0]是英雄的识别id
+			$bace+=$this->getAttr($one[1]);
+		}
+		return $bace;
 	}
 
 
