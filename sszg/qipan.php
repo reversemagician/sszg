@@ -35,18 +35,22 @@ class qipan
 		$this->role[]=$role;
 	}
 
-	//获取角色
-	public function getRole($id){
+	//获取角色 $key指定$str对应的键
+	public function getRole($str,$key='id'){
 		
 		foreach ($this->role as $k => $v) {
 			
-			if($id==$v->role['id']){
+			if($str==$v->role[$key]){
 				return $v;
 			}
 		}
 
 		return null;
-		
+	}
+
+	//获取多个角色
+	public function getRoles($where,$key){
+
 	}
 
 }

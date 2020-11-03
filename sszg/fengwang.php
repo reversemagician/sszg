@@ -86,7 +86,7 @@ class fengwang implements role{
 					'type'=>'wushang',//物理伤害
 					'novalueupkey'=>[],//指定不生效加成项
 					'valueupkey'=>[],//必定生效加成项
-					'bacevalue'=>[$this->role['id'].'.h'=>$skill['p']],//key为value时为固定值伤害
+					'bacevalue'=>[$this->role['id'].'.a'=>$skill['p']],//key为value时为固定值伤害
 					'valuechange'=>[//伤害加成 或伤害降低
 						// 'fashiup'=>[
 						// 	'p'=>$fashiup,//比例值
@@ -177,7 +177,7 @@ class fengwang implements role{
 			if(!in_array($v['type'],$untype)){ 
 
 				$up_arr[$k]['bace']=$this->attack_bace($v['bacevalue']);//基础伤害
-				echo $up_arr[$k]['bace'];
+
 				//伤害加成信息
 					$up_arr[$k]['up']=[];//加成信息
 					// 暴击结算信息
@@ -246,9 +246,9 @@ class fengwang implements role{
 			if ($isup) {
 				$up=0;//加成
 				if(isset($attack_info_package['attributechange'][$upname])){
-					$up=$attack_info_package['attributechange'][$upname]['value']+$attack_info_package['attributechange'][$upname]['p']*$attacker->getAttr($upname)/100+$attacker->getAttr($upname);
+					$up=$attack_info_package['attributechange'][$upname]['value']+$attack_info_package['attributechange'][$upname]['p']*$attacker->getAttrValue($upname)/100+$attacker->getAttrValue($upname);
 				}else{
-					$up=$attacker->getAttr($upname);
+					$up=$attacker->getAttrValue($upname);
 				}
 				//记录数据
 				$up_result[$upname]=['shengxiao'=>$isup];
@@ -269,9 +269,9 @@ class fengwang implements role{
 				
 				$up=0;//加成
 				if(isset($attack_info_package['attributechange'][$upname])){
-					$up=$attack_info_package['attributechange'][$upname]['value']+$attack_info_package['attributechange'][$upname]['p']*$attacker->getAttr($upname)/100+$attacker->getAttr($upname);
+					$up=$attack_info_package['attributechange'][$upname]['value']+$attack_info_package['attributechange'][$upname]['p']*$attacker->getAttrValue($upname)/100+$attacker->getAttrValue($upname);
 				}else{
-					$up=$attacker->getAttr($upname);
+					$up=$attacker->getAttrValue($upname);
 				}
 
 				//记录数据
@@ -311,17 +311,17 @@ class fengwang implements role{
 			//暴击伤害
 			$baoshang=0;
 			if(isset($attack_info_package['attributechange']['baoshang'])){
-				$baoshang=$attack_info_package['attributechange']['baoshang']['value']+$attack_info_package['attributechange']['baoshang']['p']*$attacker->getAttr('baoshang')/100+$attacker->getAttr('baoshang');
+				$baoshang=$attack_info_package['attributechange']['baoshang']['value']+$attack_info_package['attributechange']['baoshang']['p']*$attacker->getAttrValue('baoshang')/100+$attacker->getAttrValue('baoshang');
 			}else{
-				$baoshang=$attacker->getAttr('baoshang');
+				$baoshang=$attacker->getAttrValue('baoshang');
 			}
 
 			//暴击率
 			$baoji=0;
 			if(isset($attack_info_package['attributechange']['baoji'])){
-				$baoji=$attack_info_package['attributechange']['baoji']['value']+$v['attributechange']['baoji']['p']*$attacker->getAttr('baoji')/100+$attacker->getAttr('baoji');
+				$baoji=$attack_info_package['attributechange']['baoji']['value']+$v['attributechange']['baoji']['p']*$attacker->getAttrValue('baoji')/100+$attacker->getAttrValue('baoji');
 			}else{
-				$baoji=$attacker->getAttr('baoji');
+				$baoji=$attacker->getAttrValue('baoji');
 			}
 
 			
@@ -341,7 +341,7 @@ class fengwang implements role{
 
 			//抗暴命中
 			if($is_baoji=='baoji'){
-				$kangbao=$this->getAttr('kangbao')>100?100:$this->getAttr('kangbao');
+				$kangbao=$this->getAttrValue('kangbao')>100?100:$this->getAttrValue('kangbao');
 				$kangbao_p=[
 					'bubaoji'=>$kangbao,
 					'baoji'=>100-$kangbao,
@@ -373,8 +373,10 @@ class fengwang implements role{
 		foreach ($info as $k => $v) {
 			$one = explode('.',$k);
 
+			$hero=$this->qipan->getRole($one[0]);
+
 			// $one[0]是英雄的识别id
-			$bace+=$this->getAttr($one[1]);
+			$bace+=$hero->getAttrValue($one[1]);
 		}
 		return $bace;
 	}
@@ -389,15 +391,12 @@ class fengwang implements role{
 		
 	}
 
-	//获取属性值 $bace不为空代表获取基础属性
-	public function getAttr($attr,$bace=''){
+	//获取属性值 $rang指定获取范围
+	public function getAttrValue($attr,$rang=[]){
 		$name=$attr;
+		// $rang=['buff','linshi','base'];
 
-		if($bace!=''){
-			//只返回基础属性
-			return isset($this->role[$name])?$this->role[$name]:0;
-		}
-
+		
 		//buff属性
 		$buff=[];
 		if(isset($this->role['buff'][$name.'buff'])){
@@ -410,6 +409,7 @@ class fengwang implements role{
 
 		}
 
+
 		//临时属性
 		$linshi=[];
 		foreach ($this->role['linshiattr'] as $k=> $v) {
@@ -419,14 +419,26 @@ class fengwang implements role{
 			}
 		}
 
-		
-		// 返回总属性
-		return array_sum($buff)+array_sum($linshi)+isset($this->role[$name])?$this->role[$name]:0;
-		
-		
+
+		if(empty($rang)){
+			// 返回总属性
+			return array_sum($buff)+array_sum($linshi)+(isset($this->role[$name])?$this->role[$name]:0);
+		}else{
+			$result =0;
+			$result+=in_array('buff',$rang)?array_sum($buff):0;
+			$result+=in_array('linshi',$rang)?array_sum($linshi):0;
+			$result+=in_array('bace',$rang)?(isset($this->role[$name])?$this->role[$name]:0):0;
+			return $result;
+		}
 
 	}
 
+	// 获取字符串属性
+	public function getAttrString($name){
+		return isset($this->role[$name])?$this->role[$name]:null;
+	}
+	
+	
 
 	/**
 	 *获取多维数组的某个值 
