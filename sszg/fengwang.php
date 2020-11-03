@@ -185,23 +185,12 @@ class fengwang implements role{
 
 				$up_arr[$k]['bace']=$this->attack_bace($v['bacevalue']);//基础伤害
 
-				$jiacheng=new attackWork();//进攻结算
-				$up =$jiacheng->getResult($attacker,$v);
-				print_r($up);die;
-				//伤害加成信息
-					$up_arr[$k]['up']=[];//加成信息
-					// 暴击结算信息
-					$up_arr[$k]['up']=array_merge($up_arr[$k]['up'],$this->baoshang_jiacheng_jiesuan($attacker,$v));
-
-					//物理、法术伤害加成
-					$up_arr[$k]['up']=array_merge($up_arr[$k]['up'],$this->wufashang_jiacheng_jiesuan($attacker,$v));
-
-					//其他附带伤害加成项结算
-					$up_arr[$k]['up']=array_merge($up_arr[$k]['up'],$this->qita_jiacheng_jiesuan($attacker,$v));
-
+				//进攻结算
+				$jiacheng=new attackWork();
+				$up_arr[$k]['up']=$jiacheng->getResult($attacker,$v);
 				
-				//受攻击伤害减免计算
-					$up_arr[$k]['down']=[];//伤害减免信息
+				//防御结算
+				$up_arr[$k]['down']=[];//伤害减免信息
 
 					//物理、法术减免
 					

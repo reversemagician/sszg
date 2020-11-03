@@ -2,67 +2,62 @@
 namespace App\myclass\sszg;
 
  /**
- * 常规加成类计算
+ * 攻击加成类计算
  */
  class attackWork
  {
 
- 	private $default_baoji_rang=['fashang','wushang'];//默认可暴击伤害类型
- 	private $default_shanghai_rang=['fashang','wushang'];//默认伤害加成属性生效伤害类型
-
+ 	private $default_rang=[//默认生效范围
+ 		'wushang'=>['wushang'],
+ 		'fashang'=>['fashang'],
+ 		'shanghai'=>['fashang','wushang'],
+ 		'baoshang'=>['fashang','wushang'],
+ 	];
 
  	 /**
 	 * 获取结果
 	 *@param object $attacker 攻击者 
-	 *@param object $underattack 被攻击者 
 	 *@param object $attack_info_package 攻击信息包 
 	 *@return array $result 加成信息
 	 */
  	public function getResult($attacker,$attack_info_package){
  		$result=[];//加成信息
 		// 暴击结算信息
-		$result=array_merge($result,$this->baoshang_jiacheng_jiesuan($attacker,$attack_info_package));
+		$result=array_merge($result,$this->baoshang($attacker,$attack_info_package));
 
 		//物理、法术伤害加成
-		$result=array_merge($result,$this->wufashang_jiacheng_jiesuan($attacker,$attack_info_package));
+		$result=array_merge($result,$this->wfs($attacker,$attack_info_package));
 
 		//其他附带伤害加成项结算
-		$result=array_merge($result,$this->qita_jiacheng_jiesuan($attacker,$attack_info_package));
+		$result=array_merge($result,$this->other($attacker,$attack_info_package));
  		
  		return $result;
  	}
 
 
  	/**
-	 *物理、法术伤害加成结算 
+	 *物理、法术、伤害加成结算 
 	 *@param array $attack_info_package 攻击者 
 	 *@param array $attack_info_package 攻击信息包 
 	 *@return array $result 物伤信息
 	 */
-	public function wufashang_jiacheng_jiesuan($attacker,$attack_info_package){
+	private function wfs($attacker,$attack_info_package){
 			
 			$up_result=[];
-			$rang=['wushang','fashang'];
+			$rang=['wushang','fashang','shanghai'];
 			foreach ($rang as $k => $v) {
 				$upname=$v;//加成名
-				$arr=[$upname];//指定默认生效伤害类型
-				$isup=false;
-
-				$isup=in_array($attack_info_package['type'],$arr)?true:$isup;
-				$isup=in_array('no'.$upname,$attack_info_package['other'])?false:$isup;//指定加成不生效
-				$isup=in_array($upname,$attack_info_package['other'])?true:$isup;//指定加成生效
-
+				$up_rang=$this->default_rang[$upname];//指定默认生效伤害类型
+				
+				//是否生效
+				$isup=$this->getshengxiao($attack_info_package['type'],$upname,$up_rang,$attack_info_package['other']);
 
 				if ($isup) {
-					$up=0;//加成
-					if(isset($attack_info_package['attributechange'][$upname])){
-						$up=$attack_info_package['attributechange'][$upname]['value']+$attack_info_package['attributechange'][$upname]['p']*$attacker->getAttrValue($upname)/100+$attacker->getAttrValue($upname);
-					}else{
-						$up=$attacker->getAttrValue($upname);
-					}
+					//加成值
+					$up=$this->getUp($upname,$attack_info_package,$attacker);
 					//记录数据
 					$up_result[$upname]=['shengxiao'=>$isup];
-					$up_result[$upname]['up']=$up<0?0:$up;
+					$up_result[$upname]['up']=$up;
 				}
 			}
 
@@ -75,52 +70,38 @@ namespace App\myclass\sszg;
 	 *@param array $attack_info_package 攻击信息包 
 	 *@return array $baoji_result 暴击结算信息
 	 */
-	public function baoshang_jiacheng_jiesuan($attacker,$attack_info_package){
+	private function baoshang($attacker,$attack_info_package){
 
 		$upname='baoshang';
-		$baojiarr=$this->default_baoji_rang;//指定默认可暴击的伤害类型
-		$isbaojiup=false;
-		$isbaojiup=in_array($attack_info_package['type'],$baojiarr)?true:$isbaojiup;
-		$isbaojiup=in_array('no'.$upname,$attack_info_package['other'])?false:$isbaojiup;//判断是否指定不结算暴击
-		$isbaojiup=in_array($upname,$attack_info_package['other'])?true:$isbaojiup;//判断是否指定必定结算暴击
+		$up_rang=$this->default_rang['baoshang'];//指定默认可暴击的伤害类型
+
+		$isbaojiup=$this->getshengxiao($attack_info_package['type'],$upname,$up_rang,$attack_info_package['other']);
 
 		//暴击结果数据记录
 		$baoji_result=[];
 		
-		if($isbaojiup){
-			//判定为可暴击伤害 结算暴击
 
-			//暴击伤害
-			$baoshang=0;
-			if(isset($attack_info_package['attributechange']['baoshang'])){
-				$baoshang=$attack_info_package['attributechange']['baoshang']['value']+$attack_info_package['attributechange']['baoshang']['p']*$attacker->getAttrValue('baoshang')/100+$attacker->getAttrValue('baoshang');
-			}else{
-				$baoshang=$attacker->getAttrValue('baoshang');
-			}
+		//暴击伤害
+		$baoshang=$this->getUp($upname,$attack_info_package,$attacker);
 
-			//暴击率
-			$baoji=0;
-			if(isset($attack_info_package['attributechange']['baoji'])){
-				$baoji=$attack_info_package['attributechange']['baoji']['value']+$v['attributechange']['baoji']['p']*$attacker->getAttrValue('baoji')/100+$attacker->getAttrValue('baoji');
-			}else{
-				$baoji=$attacker->getAttrValue('baoji');
-			}
+		//暴击率
+		$baoji=$this->getUp('baoji',$attack_info_package,$attacker);
 
-			
+		
 
-			//暴击命中
-			$baoji=$baoji>=100?100:$baoji;
-			$baoji=$baoji<0?0:$baoji;
-			$baoji_p=[
-				'baoji'=>$baoji,
-				'bubaoji'=>100-$baoji,
-			];
-			$is_baoji= $this->probability($baoji_p);
-			//数据记录
-			$baoji_result['baoji']=$baoji;//暴击率
-			$baoji_result['up']=$baoshang<0?0:$baoshang;//暴伤
-			$baoji_result['baojimingzhong']=$is_baoji=='baoji'?true:false;//暴击命中
-			$baoji_result['result']=$is_baoji;//暴击结果
+		//暴击命中
+		$baoji=$baoji>=100?100:$baoji;
+		$baoji=$baoji<0?0:$baoji;
+		$baoji_p=[
+			'baoji'=>$baoji,
+			'bubaoji'=>100-$baoji,
+		];
+		$is_baoji= $this->probability($baoji_p);
+		//数据记录
+		$baoji_result['baoji']=$baoji;//暴击率
+		$baoji_result['up']=$baoshang<0?0:$baoshang;//暴伤
+		$baoji_result['baojimingzhong']=$is_baoji=='baoji'?true:false;//暴击命中
+		$baoji_result['result']=$is_baoji;//暴击结果
 
 			// //抗暴命中
 			// if($is_baoji=='baoji'){
@@ -137,7 +118,6 @@ namespace App\myclass\sszg;
 			// 	$baoji_result['result']=$is_baoji;//暴击结果
 				
 			// }
-		}
 
 		//必定暴击和必定不暴击参数
 		$baoji_result['result']=in_array('baoji',$attack_info_package['other'])?'baoji':$baoji_result['result'];
@@ -149,16 +129,15 @@ namespace App\myclass\sszg;
 		
 	}
 
-
 	/**
 	 *其他伤害加成结算 
 	 *@param array $attack_info_package 攻击者 
 	 *@param array $attack_info_package 攻击信息包 
 	 *@return array $result 物伤信息
 	 */
-	public function qita_jiacheng_jiesuan($attacker,$attack_info_package){
+	private function other($attacker,$attack_info_package){
 		$up_result=[];
-		$paichu=['wushang','fashang','baoshang'];//排除已结算的项
+		$paichu=array_keys($this->default_rang);//排除已结算的项
 		foreach ($attack_info_package['valuechange'] as $k => $v) {
 			if(!in_array($k,$paichu)){
 				$up_result[$k]=[
@@ -168,6 +147,41 @@ namespace App\myclass\sszg;
 			}
 		}
 		return $up_result;
+	}
+
+	/**
+	 *是否生效 
+	 *@param array $type 攻击类型 
+	 *@param array $name 加成名
+	 *@param array $rang 默认生效范围 
+	 *@param array $other 信息包 
+	 *@return bool $result 
+	 */
+	private function getshengxiao($type,$name,$rang,$other){
+		$result=false;
+		$result=in_array($type,$rang)?true:$result;
+		$result=in_array('no'.$name,$other)?false:$result;//指定加成不生效
+		$result=in_array($name,$other)?true:$result;//指定加成生效
+		return $result;
+	}
+
+	/**
+	 *获取加成值 
+	 *@param array $upname 加成名 
+	 *@param array $attack_info_package 
+	 *@param array $attacker  
+	 *@param array $other 信息包 
+	 *@return int $up 
+	 */
+	private function getUp($upname,$attack_info_package,$attacker){
+		$up=0;//加成
+		if(isset($attack_info_package['attributechange'][$upname])){
+			$up=$attack_info_package['attributechange'][$upname]['value']+$attack_info_package['attributechange'][$upname]['p']*$attacker->getAttrValue($upname)/100+$attacker->getAttrValue($upname);
+		}else{
+			$up=$attacker->getAttrValue($upname);
+		}
+
+		return $up<0?0:$up;
 	}
 
 	/**

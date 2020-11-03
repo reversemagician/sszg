@@ -82,6 +82,7 @@ class SszgController extends Controller
                 'mingzhong'=>100,//命中
                 'baoji'=>50,//暴击
                 'baoshang'=>150,//暴伤
+                'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
                 'kangbao'=>20,//抗暴
@@ -102,6 +103,7 @@ class SszgController extends Controller
                 'mingzhong'=>100,//命中
                 'baoji'=>100,//暴击
                 'baoshang'=>150,//暴伤
+                'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
                 'kangbao'=>20,//抗暴
@@ -122,6 +124,7 @@ class SszgController extends Controller
                 'mingzhong'=>100,//命中
                 'baoji'=>100,//暴击
                 'baoshang'=>150,//暴伤
+                'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
                 'kangbao'=>20,//抗暴
@@ -142,6 +145,7 @@ class SszgController extends Controller
                 'mingzhong'=>100,//命中
                 'baoji'=>100,//暴击
                 'baoshang'=>150,//暴伤
+                'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
                 'kangbao'=>20,//抗暴
@@ -162,6 +166,7 @@ class SszgController extends Controller
                 'mingzhong'=>100,//命中
                 'baoji'=>100,//暴击
                 'baoshang'=>150,//暴伤
+                'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
                 'kangbao'=>20,//抗暴
@@ -184,6 +189,7 @@ class SszgController extends Controller
                 'mingzhong'=>100,//命中
                 'baoji'=>100,//暴击
                 'baoshang'=>150,//暴伤
+                'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
                 'kangbao'=>20,//抗暴
@@ -205,6 +211,7 @@ class SszgController extends Controller
                 'mingzhong'=>100,//命中
                 'baoji'=>100,//暴击
                 'baoshang'=>150,//暴伤
+                'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
                 'kangbao'=>20,//抗暴
@@ -225,6 +232,7 @@ class SszgController extends Controller
                 'mingzhong'=>100,//命中
                 'baoji'=>100,//暴击
                 'baoshang'=>150,//暴伤
+                'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
                 'kangbao'=>20,//抗暴
@@ -245,6 +253,7 @@ class SszgController extends Controller
                 'mingzhong'=>100,//命中
                 'baoji'=>100,//暴击
                 'baoshang'=>150,//暴伤
+                'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
                 'kangbao'=>20,//抗暴
@@ -265,6 +274,7 @@ class SszgController extends Controller
                 'mingzhong'=>100,//命中
                 'baoji'=>100,//暴击
                 'baoshang'=>150,//暴伤
+                'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
                 'kangbao'=>20,//抗暴
