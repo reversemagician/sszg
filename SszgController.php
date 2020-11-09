@@ -7,12 +7,17 @@ use App\myclass\sszg\sszg;
 use App\myclass\sszg\fengwang;
 use App\myclass\sszg\qipan;
 use App\myclass\sszg\attack;
+use App\myclass\sszg\attackWork;
+use App\myclass\sszg\defenseWork;
 use DB;
 
 class SszgController extends Controller
 {
+
+    private $ob=[
+    'beforeAttack'=>'App\myclass\sszg\ob\xibie',
+    ];
 	public function list(){
-    
         $rolebuff=[
             'abuff'=>[//攻击buff
                 [    
@@ -21,10 +26,12 @@ class SszgController extends Controller
                     'buffid'=>'aup',//同类型id相同仅生效一个效果最高的buff
                     'pid'=>'',//父级id
                     'type'=>'buff',//增益 减益
-                    'is_qusan'=>true,//可驱散
                     'turn'=>1,//持续回合
                     'value'=>0,//固定值
                     'value_p'=>10,//百分比
+                    'other'=>[
+                        'noqusan',//不可驱散
+                    ],
                 ],
                 [    
 
@@ -32,10 +39,12 @@ class SszgController extends Controller
                     'buffid'=>'aup1',//同类型id相同仅生效一个效果最高的buff
                     'pid'=>'',//父级id
                     'type'=>'buff',//增益 减益
-                    'is_qusan'=>true,//可驱散
                     'turn'=>1,//持续回合
                     'value'=>0,//固定值
                     'value_p'=>10,//百分比
+                    'other'=>[
+                        'noqusan',//不可驱散
+                    ],
                 ]
             ]
         ];
@@ -56,19 +65,6 @@ class SszgController extends Controller
             ],
         ];
 
-        $xibie_kezhi=[
-            'xiaoguo'=>[
-                'shanghaiUP'=>25,
-                'mingzhongUP'=>15,
-            ],//克制效果
-            'shui'=>['huo'],
-            'feng'=>['shui'],
-            'huo'=>['feng'],
-            'guang'=>['an'],
-            'an'=>['guang'],
-            'type'=>['wuli','mofa'],
-        ];
-
         $u0=[
             [   
                 'id'=>'fengwang0',
@@ -85,6 +81,9 @@ class SszgController extends Controller
                 'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
+                'fajian'=>10,//法术减伤
+                'wujian'=>10,//物理减伤
+                'shangjian'=>10,//伤害减免                
                 'kangbao'=>20,//抗暴
                 'zhiye'=>'战士',//职业
                 'xibie'=>'feng',//系别
@@ -106,6 +105,9 @@ class SszgController extends Controller
                 'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
+                'fajian'=>10,//法术减伤
+                'wujian'=>10,//物理减伤
+                'shangjian'=>10,//伤害减免
                 'kangbao'=>20,//抗暴
                 'zhiye'=>'辅助',//职业
                 'xibie'=>'shui',//系别
@@ -127,6 +129,9 @@ class SszgController extends Controller
                 'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
+                'fajian'=>10,//法术减伤
+                'wujian'=>10,//物理减伤
+                'shangjian'=>10,//伤害减免
                 'kangbao'=>20,//抗暴
                 'zhiye'=>'战士',//职业
                 'xibie'=>'shui',//系别
@@ -148,6 +153,9 @@ class SszgController extends Controller
                 'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
+                'fajian'=>10,//法术减伤
+                'wujian'=>10,//物理减伤
+                'shangjian'=>10,//伤害减免
                 'kangbao'=>20,//抗暴
                 'zhiye'=>'辅助',//职业
                 'xibie'=>'guang',//系别
@@ -169,6 +177,9 @@ class SszgController extends Controller
                 'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
+                'fajian'=>10,//法术减伤
+                'wujian'=>10,//物理减伤
+                'shangjian'=>10,//伤害减免
                 'kangbao'=>20,//抗暴
                 'zhiye'=>'肉盾',//职业
                 'xibie'=>'huo',//系别
@@ -192,6 +203,9 @@ class SszgController extends Controller
                 'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
+                'fajian'=>10,//法术减伤
+                'wujian'=>10,//物理减伤
+                'shangjian'=>10,//伤害减免
                 'kangbao'=>20,//抗暴
                 'zhiye'=>'肉盾',//职业
                 'xibie'=>'feng',//系别
@@ -214,6 +228,9 @@ class SszgController extends Controller
                 'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
+                'fajian'=>10,//法术减伤
+                'wujian'=>10,//物理减伤
+                'shangjian'=>10,//伤害减免
                 'kangbao'=>20,//抗暴
                 'zhiye'=>'辅助',//职业
                 'xibie'=>'feng',//系别
@@ -235,6 +252,9 @@ class SszgController extends Controller
                 'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
+                'fajian'=>10,//法术减伤
+                'wujian'=>10,//物理减伤
+                'shangjian'=>10,//伤害减免
                 'kangbao'=>20,//抗暴
                 'zhiye'=>'肉盾',//职业
                 'xibie'=>'shui',//系别
@@ -256,6 +276,9 @@ class SszgController extends Controller
                 'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
+                'fajian'=>10,//法术减伤
+                'wujian'=>10,//物理减伤
+                'shangjian'=>10,//伤害减免
                 'kangbao'=>20,//抗暴
                 'zhiye'=>'战士',//职业
                 'xibie'=>'feng',//系别
@@ -277,6 +300,9 @@ class SszgController extends Controller
                 'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
                 'fashang'=>10,//法术伤害加成
+                'fajian'=>10,//法术减伤
+                'wujian'=>10,//物理减伤
+                'shangjian'=>10,//伤害减免
                 'kangbao'=>20,//抗暴
                 'zhiye'=>'法师',//职业
                 'xibie'=>'shui',//系别
@@ -285,16 +311,12 @@ class SszgController extends Controller
             ]
         ];
 
-        $qipan=new qipan; //棋盘
-        $qipan->xibie($xibie_kezhi);
+        $qipan=new qipan(); //棋盘
 
         $fengwang=new fengwang($u0[0]);
-        $fengwang->qipan($qipan);
         $yemeng1=new fengwang($u1[4]);
-        $yemeng1->qipan($qipan);
 
-        $qipan->addRole($fengwang);
-        $qipan->addRole($yemeng1);
+        $qipan->addRoles([$fengwang,$yemeng1]);//角色加入棋盘
 
         $fengwang->round();//风王的回合
         // probability 概率的英文

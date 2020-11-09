@@ -3,6 +3,7 @@ namespace App\myclass\sszg;
 
 
 class fengwang implements role{
+	use ob;
 	public $role=[];
 	public $qipan='';
 	public $skill=[
@@ -14,32 +15,33 @@ class fengwang implements role{
 		],
 	];
 
+	//初始化时执行的自身方法
+	private $inti=[
+
+		'obInti',//ob类初始化
+	
+	];
+
 	public function __construct($role_info){
 		$this->role=$role_info;
+		$this->inti();
 	}
+
+	//初始化
+	private function inti(){
+
+		foreach ($this->inti as $k => $v) {
+			call_user_func_array([$this,$v],[]);
+		}
+	}
+
 
 	//棋盘
 	public function qipan($qipan){
 		$this->qipan=$qipan;
 	}
 
-	//装饰 行动之前
-	public function beforeAction($action_type,$self){
-		// echo '小心点！'.$self->role['name'].'正在活动她的爪子,<br>';
-		// $self->role['name']='史芬克斯';
-	}
-	//装饰 行动之后
-	public function afterAction($action_type,$self){
-
-	}
-	//装饰 攻击之前
-	public function beforeAttack($releas_info,$target){
-		// echo $releas_info['releaser']->role['name'].'出手了。<br>';
-	}
-	//装饰 攻击之后
-	public function afterAttack($releas_info,$target){
-		// echo $releas_info['releaser']->role['name'].'回合结束。<br>';
-	}
+	
 
 	//回合开始
 	public function round(){
@@ -78,8 +80,9 @@ class fengwang implements role{
 		$target=$this->qipan->getRole('yemeng1');
 		$skill_info=[//行动信息
 			'releaser'=>$this->role['id'],
+			'target'=>$target->getAttrString('id'),
 			'action_info'=>[
-				'id'=>1,//行动ID
+				'id'=>$this->qipan->getOnlyId(),
 				'type'=>'wuliattack',//行动类型 物理攻击
 			],
 			'attack_info'=>[ //攻击信息
@@ -87,19 +90,11 @@ class fengwang implements role{
 					'type'=>'wushang',//物理伤害
 					'bacevalue'=>[$this->role['id'].'.a'=>$skill['p']],//key为value时为固定值伤害
 					'valuechange'=>[//伤害加成 或伤害降低
-						// 'fashiup'=>[
-						// 	'p'=>$fashiup,//比例值
-						// ]
+						//'fashiup'=>20,
 					],
 					'attributechange'=>[//附带属性增加或减少
-						'baoshang'=>[//命中提升
-							'p'=>0,
-							'value'=>60,//固定值
-						],
-						'wushang'=>[
-							'p'=>0,
-							'value'=>20,
-						],
+						'baoshang'=>10,
+						'wushang'=>10,
 					],
 					'other'=>[//其他属性
 						// 'baoshang',//指定发生暴击判定
@@ -116,25 +111,25 @@ class fengwang implements role{
 				],
 				[
 					'type'=>'buff',
-					'is'=>0.45,//概率
-					'buff'=>[
-						'name'=>'chenmo',//buff名
+					'is'=>45,//概率
+					'buff'=>$this->qipan->getBuff([
+						'name'=>'chenmo',
+						'releaser'=>$this->getAttrString('id'),
 	                    'buffid'=>'chenmo',
-	                    //同类型id相同仅生效一个效果最高的buff
-	                    'type'=>'debuff',//增益 减益
-	                    'is_qusan'=>true,//可驱散
-	                    'turn'=>1,//持续回合
-	                    'value'=>0,//固定值
-	                    'value_p'=>0,//百分比
-					]
+	                    'type'=>'debuff',
+	                    'turn'=>1])
+						
 				]
 			]
+
+
+                    
 			
 		];
 
 		//攻击法师增加额外
 		if($target->role['zhiye']=='法师'){
-			$skill_info['attack_info']['main']['valuechange']['fashiup']=['p'=>$skill['fashiup']];
+			$skill_info['attack_info']['main']['valuechange']['fashiup']=$skill['fashiup'];
 		}
 
 		//攻击接口
@@ -144,74 +139,104 @@ class fengwang implements role{
 	//攻击
 	private function attack($info,$target){
 		//攻击装饰
-		$this->beforeAttack($info,$target);
+		$info= $this->beforeAttack($info);
 
 		echo $this->role['name'].'攻击了'.$target->role['name'].'<br>';
 
 		//调用目标的 受到攻击接口
-		$target->underattack($info);
+		$result= $target->underattack($info);
 
 		//攻击结束装饰
-		$this->afterAttack($info,$target);
+		$this->afterAttack($info,$result,$this->qipan);
 	}
 
 	//受到攻击
 	public function underattack($attack_info){
+
+
+		//攻击包类型
+		$attack_rang=['wushang','fashang','zhenshang'];
+
+		//buff包类型
+		$buff_rang=['buff','debuff'];
 		
 		echo $this->role['name'].'受到的攻击<br>';
 
-		$this->underAttackWork($attack_info);
-	}
-
-	//受到攻击伤害结算
-	public function underAttackWork($attack_info){
-
-		// unset($attack_info['releaser']);
-		// print_r($attack_info);
-
-		
-
-		
-		//伤害加成计算 循环攻击包信息
-		$untype=['buff'];//指定非伤害信息
-		$up_arr=[];//伤害加成结果
 		$attacker=$this->qipan->getRole($attack_info['releaser']);
+		
+
 		foreach ($attack_info['attack_info'] as $k => $v) {
 
-			
-			
-			//跳过非伤害的信息包
-			if(!in_array($v['type'],$untype)){ 
-
-				$up_arr[$k]['bace']=$this->attack_bace($v['bacevalue']);//基础伤害
-
-				//进攻结算
-				$jiacheng=new attackWork();
-				$up_arr[$k]['up']=$jiacheng->getResult($attacker,$v);
-				
-				//防御结算
-				$up_arr[$k]['down']=[];//伤害减免信息
-
-					//物理、法术减免
-					
-					
+			//攻击处理
+			if(in_array($v['type'],$attack_rang)){
+				$info = $this->underAttackWork($v,$attacker);
 			}
+
+			//buff处理
+			if(in_array($v['type'],$buff_rang)){
+				$this->attackBuff($v,$attacker);//buff判定
+			}
+			
 		}
-		print_r($up_arr);die;
+
+		
+	}
+
+	//
+	public function attackBuff($info){
+		
+		if($info['is']>=100){
+			$this->buff($info);
+		}else{
+			$info['is']=$info['is']<0?0:$info['is'];
+			$is =$this->qipan->useTool('ordinary','probability',[['yes'=>$info['is'],'no'=>100-$info['is']]]);
+			if($is=='yes'){
+				$this->buff($info['buff']);
+			}
+		}	
+	}
+
+	//获得buff $other其他信息
+	public function buff($buff,$other=[]){
+		print_r($buff);
+	}
+
+	//受到攻击 攻击信息结算
+	public function underAttackWork($attack_info,$attacker){
+
+		
+		$arr=[];//伤害加成结果
+		
+		
+			$arr['bace']=$this->attack_bace($attack_info);//基础伤害
+
+			//进攻结算
+			$arr['up']=$this->qipan->useTool('attackWork','getResult',[$attacker,$attack_info]);
+			
+			//防御结算
+			$arr['down']=$this->qipan->useTool('defenseWork','getResult',[$this,$attack_info]);;//伤害减免信息
+
+				
+		return $arr;
 
 	}	
 
 
 	//攻击基本伤害
 	public function attack_bace($info){
+
 		$bace=0;
-		foreach ($info as $k => $v) {
+		foreach ($info['bacevalue'] as $k => $v) {
 			$one = explode('.',$k);
 
-			$hero=$this->qipan->getRole($one[0]);
+			$hero=$this->qipan->getRole($one[0]);// $one[0]是英雄的识别id
 
-			// $one[0]是英雄的识别id
-			$bace+=$hero->getAttrValue($one[1]);
+			
+			$value=$hero->getAttrValue($one[1]);//角色值
+			$upvalue=isset($info['attributechange'][$one[1]])?$info['attributechange'][$one[1]]:0;//附带属性提升值
+
+
+			$bace=$bace+($value+$upvalue)*$v/100;
 		}
 		return $bace;
 	}
@@ -229,8 +254,6 @@ class fengwang implements role{
 	//获取属性值 $rang指定获取范围
 	public function getAttrValue($attr,$rang=[]){
 		$name=$attr;
-		// $rang=['buff','linshi','base'];
-
 		
 		//buff属性
 		$buff=[];
@@ -273,68 +296,6 @@ class fengwang implements role{
 		return isset($this->role[$name])?$this->role[$name]:null;
 	}
 	
-	
-
-	/**
-	 *获取多维数组的某个值 
-	 *@param array $arr 数组 
-	 *@param array $key 属性名 key0.key1.key2 
-	 *@return value 属性不存在则返回字符串'undefined'
-	 */
-	private function getArrayValue($key='',$arr=[]){
-		if($key==''||empty($arr)){return '';}
-		$layer=explode('.',$key);
-		$vstr='$arr';
-		foreach ($layer as $v) {
-			$vstr.='["'.$v.'"]';
-		}
-		$evalstr='$result=isset('.$vstr.')?'.$vstr.':"undefined";';//undefined该值不存在
-		eval($evalstr);
-		return $result;
-	}
-
-
-	/**
-	 * 概率命中
-	 *
-	 * @param array $ps array('a'=>0.5,'b'=>5.2,'c'=>0.4)
-	 * @return string 返回上面数组的key
-	 */
-	private function probability($ps){
-        $sum = array_sum($ps);
-        $len=0;
-       	foreach ($ps as $k => $v) {
-       		$newlen=$this->getFloatLen($v);
-       		$len =$newlen>$len?$newlen:$len;
-       	}
-       	$base=1;
-       	for ($i=0; $i < $len; $i++) { 
-       		$base=$base*10;
-       	}
-        $max=$sum*$base;
-        $rand = mt_rand(1,$max);
-        $randsum=0;
-        $result='';
-        foreach ($ps as $k => $v) {
-        	$randsum=$base*$v+$randsum;
-        	if( $rand <= $randsum ){
-        		$result=$k; break;
-        	}
-        }
-	    return $result;
-	}
-
-	//获取数字的小数长度
-	private function getFloatLen($num) {
-		$num =(float)$num;
-		$temp = explode ( '.', $num );
-		$count = 0;
-		if (count( $temp ) > 1) {
-			$decimal = end ( $temp );
-			$count = strlen ( $decimal );
-		}
-		return $count;
-	}
 }
 
 
