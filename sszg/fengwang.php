@@ -115,8 +115,8 @@ class fengwang implements role{
 					'buff'=>$this->qipan->getBuff([
 						'name'=>'chenmo',
 						'releaser'=>$this->getAttrString('id'),
-	                    'buffid'=>'chenmo',
-	                    'type'=>'debuff',
+	                    'bufftype'=>'debuff',
+	                    'type'=>'chenmo',
 	                    'turn'=>1])
 						
 				]
@@ -184,7 +184,7 @@ class fengwang implements role{
 
 	//
 	public function attackBuff($info){
-		
+		print_r($info) ;
 		if($info['is']>=100){
 			$this->buff($info);
 		}else{
@@ -198,8 +198,26 @@ class fengwang implements role{
 
 	//获得buff $other其他信息
 	public function buff($buff,$other=[]){
-		print_r($buff);
+
+		$this->addBuff($buff);
+
 	}
+
+	//获得Buff
+	public function addBuff($buff){
+		$this->buff[]=$buff;
+	}
+
+	//驱散buff  $key $key=key|id|name 
+	public function qusanBuff($value,$key='id'){
+		if($key=='id'){
+			foreach ($this->buff as $k => $v) {
+				// if(){}
+			}
+		}
+	} 
+
+
 
 	//受到攻击 攻击信息结算
 	public function underAttackWork($attack_info,$attacker){
@@ -257,15 +275,23 @@ class fengwang implements role{
 		
 		//buff属性
 		$buff=[];
-		if(isset($this->role['buff'][$name.'buff'])){
 			
-			foreach ($this->role['buff'][$name.'buff'] as $k => $v) {
-
-				$buffvalue=$v['value']+$v['value_p']*$this->role[$name]/100;
-				$buff[$v['buffid']]=isset($buff[$v['buffid']])?($buff[$v['buffid']]>$buffvalue?$buff[$v['buffid']]:$buffvalue):$buffvalue;
+			foreach ($this->role['buff'] as $k => $v) {
+				$value=0;
+				if(isset($v['attrchange'][$attr])){
+					//固定值
+					$val=isset($v['attrchange'][$attr]['value'])?$v['attrchange'][$attr]['value']:0;
+					//基础百分比值
+					$p=isset($v['attrchange'][$attr]['p'])?$v['attrchange'][$attr]['p']*$this->role[$name]/100:0;
+					$value=($val+$p)*$v['ceng'];
+				}
+				
+				if($v['diejia']=='none'){
+					$buff[$v['name']]=isset($buff[$v['name']])?($buff[$v['name']]>$value?$buff[$v['name']]:$value):$value;
+				}else{
+					$buff[]=$value;
+				}
 			}
-
-		}
 
 
 		//临时属性

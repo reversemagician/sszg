@@ -8,7 +8,7 @@ trait ob{
 
 	private $ob=[
 	'beforeAttack'=>[
-			'xibiekezhi'=>'App\myclass\sszg\ob\xibie',
+			'xibiekezhi'=>['App\myclass\sszg\ob\xibie','getResult'],//系别克制判定
 		],
 	];
 
@@ -19,7 +19,7 @@ trait ob{
 		foreach ($this->ob as $k => $v) {
 			foreach ($v as $key => $value) {
 				
-				if(!is_object($value)) {$v[$key]= new $value;};
+				if(!is_object($value[0])) {$v[$key][0]= new $value[0];};
 			}
 			$this->ob[$k]=$v;
 		}
@@ -30,8 +30,8 @@ trait ob{
 		return isset($this->ob[$key])?$this->ob[$key]:[]; 
 	}
 	//添加监听 $key监听key 具体ob对象
-	public function addOb($key ,$key1, $ob){
-		$this->ob[$key][$key1]=$ob;
+	public function addOb($key ,$key1, $obj,$func){
+		$this->ob[$key][$key1]=[$obj,$func];
 	}
 
 	//添加监听 $key监听key 具体ob对象
@@ -57,7 +57,9 @@ trait ob{
 
 
 		foreach ($this->getOb($obkey) as $k => $v) {
-			$attack_info=$v->getResult($attack_info,$this->qipan);
+
+			$attack_info =call_user_func_array([$v[0],$v[1]],[$attack_info,$this->qipan]);
+
 		}
 
 		return $attack_info;

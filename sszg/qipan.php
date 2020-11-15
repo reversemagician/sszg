@@ -11,9 +11,10 @@ class qipan
 	private $role=[];//棋盘上的角色
 
 	private $tool=[
-		'attackWork'=>'App\myclass\sszg\tool\attackWork',
-        'defenseWork'=>'App\myclass\sszg\tool\defenseWork',
+		'attackWork'=>'App\myclass\sszg\tool\attackWork',//攻击结算
+        'defenseWork'=>'App\myclass\sszg\tool\defenseWork',//防守结算
         'ordinary'=>'App\myclass\sszg\tool\ordinary',//常用工具类集合
+        'buff'=>'App\myclass\sszg\buff\buff',//buff类
 	];//工具
 
 	function __construct()
@@ -23,19 +24,9 @@ class qipan
 
 	//初始化
 	private function inti(){
-		
-		//实例化工具类
-		$this->inti_tool();
 	}
 
-	private function inti_tool(){
-		foreach ($this->tool as $k => $v) {
-				
-			if(!is_object($v)) {
-				$this->tool[$k]= new $v;
-			};
-		}
-	}
+
 
 	
 	/**
@@ -47,6 +38,11 @@ class qipan
 	 */
 	public function useTool($toolname,$funcname,$parameter){
 		if(isset($this->tool[$toolname])){
+			//实例化工具
+			if(!is_object($this->tool[$toolname])){
+				$this->tool[$toolname]=new $this->tool[$toolname];
+			}
+			//返回工具
 			return call_user_func_array([$this->tool[$toolname],$funcname],$parameter);
 		}else{
 			// echo '工具不存在';
@@ -95,17 +91,19 @@ class qipan
 	public function getBuff($arr){
 
 		$buff=[    
-			'releaser'=>'id',
-	        'name'=>'',//buff名
-	        'buffid'=>'',//同类型id相同仅生效一个效果最高的buff
-	        'pid'=>'',//父级id
-	        'type'=>'buff',//增益 减益
+			'id'=>0,//唯一标识
+			'releaser'=>'roleid',//释放者id
+	        'name'=>'',//buff名 同名buff一般仅生效最高效果
+	        'bufftype'=>'buff',//增益 减益
+	        'type'=>'attrup',// attrup|attrdown|other|{'chenmo'}   属性提升|属性降低|其他(或复合型)|其他类型
 	        'turn'=>1,//持续回合
-	        'value'=>0,//固定值
-	        'value_p'=>0,//百分比
+	        'ceng'=>1,//层数
+	        'diejia'=>'none',//叠加类型 name|ceng|none  同名叠加|层数叠加|无叠加
+	        'attrchange'=>[],
 	        'other'=>[
             	// 'noqusan',//不可驱散
-	        ]
+            	
+	        ],
         ];
 
 		return array_merge($buff,$arr);

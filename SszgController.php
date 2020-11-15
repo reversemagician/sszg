@@ -7,8 +7,7 @@ use App\myclass\sszg\sszg;
 use App\myclass\sszg\fengwang;
 use App\myclass\sszg\qipan;
 use App\myclass\sszg\attack;
-use App\myclass\sszg\attackWork;
-use App\myclass\sszg\defenseWork;
+use App\myclass\sszg\buff\buff;
 use DB;
 
 class SszgController extends Controller
@@ -19,34 +18,31 @@ class SszgController extends Controller
     ];
 	public function list(){
         $rolebuff=[
-            'abuff'=>[//攻击buff
-                [    
+            [
+                'id'=>0,//唯一标识
+                'releaser'=>'roleid',//释放者id
+                'name'=>'aup',//buff名 同名buff一般仅生效最高效果
+                'bufftype'=>'buff',//增益 减益
+                'type'=>'attrup',// attrup|attrdown|other|{'chenmo'}   属性提升|属性降低|其他(或复合型)|其他类型
+                'turn'=>1,//持续回合
+                'ceng'=>1,//层数
+                'diejia'=>'none',//叠加类型 name|ceng|none  同名叠加|层数叠加|无叠加
+                'attrchange'=>['a'=>['p'=>10]],
+                'other'=>[],
+            ],
+            [
+                'id'=>0,//唯一标识
+                'releaser'=>'roleid',//释放者id
+                'name'=>'aup',//buff名 同名buff一般仅生效最高效果
+                'bufftype'=>'buff',//增益 减益
+                'type'=>'attrup',// attrup|attrdown|other|{'chenmo'}   属性提升|属性降低|其他(或复合型)|其他类型
+                'turn'=>1,//持续回合
+                'ceng'=>1,//层数
+                'diejia'=>'name',//叠加类型 name|ceng|none  同名叠加|层数叠加|无叠加
+                'attrchange'=>['a'=>['p'=>20]],
+                'other'=>[],
+            ],
 
-                    'name'=>'aup',//buff名
-                    'buffid'=>'aup',//同类型id相同仅生效一个效果最高的buff
-                    'pid'=>'',//父级id
-                    'type'=>'buff',//增益 减益
-                    'turn'=>1,//持续回合
-                    'value'=>0,//固定值
-                    'value_p'=>10,//百分比
-                    'other'=>[
-                        'noqusan',//不可驱散
-                    ],
-                ],
-                [    
-
-                    'name'=>'aup',//buff名
-                    'buffid'=>'aup1',//同类型id相同仅生效一个效果最高的buff
-                    'pid'=>'',//父级id
-                    'type'=>'buff',//增益 减益
-                    'turn'=>1,//持续回合
-                    'value'=>0,//固定值
-                    'value_p'=>10,//百分比
-                    'other'=>[
-                        'noqusan',//不可驱散
-                    ],
-                ]
-            ]
         ];
 
         //临时属性栏
@@ -60,7 +56,7 @@ class SszgController extends Controller
             [
                 'type'=>'baoji',//属性
                 'value_p'=>0,//百分比
-                'value'=>10,//固定值
+                'value'=>0,//固定值
                 'end'=>6,//生效到什么阶段
             ],
         ];
@@ -317,6 +313,9 @@ class SszgController extends Controller
         $yemeng1=new fengwang($u1[4]);
 
         $qipan->addRoles([$fengwang,$yemeng1]);//角色加入棋盘
+
+        $buff= new buff;
+        $buff->roleGetBuff($fengwang,'chenmo');
 
         $fengwang->round();//风王的回合
         // probability 概率的英文
