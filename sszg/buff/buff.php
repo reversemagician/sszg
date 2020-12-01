@@ -11,7 +11,7 @@ class buff
 			'obj'=>'App\myclass\sszg\buff\chenmo',//对象
 			[
 				'oblevel'=>'beforeAttack',//监听阶段
-				'func'=>'beforeAttack',//对应方法
+				'func'=>'beforeAttack',//对应buff类方法
 			],
 		],
 	];
@@ -35,7 +35,7 @@ class buff
 	}
 
 	//给角色添加buff监听
-	public function roleGetBuff($role,$buffname){
+	public function roleGetBuffOb($role,$buffname){
 		$buff=$this->getBuffInfo($buffname);
 		$obj=$buff['obj'];
 		unset($buff['obj']);

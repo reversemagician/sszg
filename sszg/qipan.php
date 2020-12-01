@@ -15,6 +15,7 @@ class qipan
         'defenseWork'=>'App\myclass\sszg\tool\defenseWork',//防守结算
         'ordinary'=>'App\myclass\sszg\tool\ordinary',//常用工具类集合
         'buff'=>'App\myclass\sszg\buff\buff',//buff类
+        'target'=>'App\myclass\sszg\tool\target'
 	];//工具
 
 	function __construct()
@@ -78,9 +79,11 @@ class qipan
 	}
 
 	//获取多个角色
-	public function getRoles($where,$key){
-
-	}
+	public function getRoles($where){
+		if ($where=='all') {
+			return $this->role;
+		}
+	}	
 
 	//获取唯一标记id
 	public function getOnlyId(){
@@ -88,18 +91,18 @@ class qipan
 	}
 
 	//获取buff的统一格式
-	public function getBuff($arr){
+	public function getBuff($arr=[]){
 
 		$buff=[    
 			'id'=>0,//唯一标识
 			'releaser'=>'roleid',//释放者id
 	        'name'=>'',//buff名 同名buff一般仅生效最高效果
 	        'bufftype'=>'buff',//增益 减益
-	        'type'=>'attrup',// attrup|attrdown|other|{'chenmo'}   属性提升|属性降低|其他(或复合型)|其他类型
+	        'type'=>'attrup',// attrup|attrdown|other|{'chenmo','xuanyun'}|''   属性提升|属性降低|其他(或复合型)|其他类型
 	        'turn'=>1,//持续回合
 	        'ceng'=>1,//层数
 	        'diejia'=>'none',//叠加类型 name|ceng|none  同名叠加|层数叠加|无叠加
-	        'attrchange'=>[],
+	        'attrchange'=>[],//属性改变效果 属性增益或属性减益
 	        'other'=>[
             	// 'noqusan',//不可驱散
             	

@@ -81,7 +81,9 @@ class SszgController extends Controller
                 'wujian'=>10,//物理减伤
                 'shangjian'=>10,//伤害减免                
                 'kangbao'=>20,//抗暴
-                'zhiye'=>'战士',//职业
+                'team'=>0,
+                'status'=>1,
+                'zhiye'=>'zhanshi',//职业
                 'xibie'=>'feng',//系别
                 'buff'=>$rolebuff,//buff
                 'linshiattr'=>$linshiattr//临时属性
@@ -105,7 +107,9 @@ class SszgController extends Controller
                 'wujian'=>10,//物理减伤
                 'shangjian'=>10,//伤害减免
                 'kangbao'=>20,//抗暴
-                'zhiye'=>'辅助',//职业
+                'team'=>0,
+                'status'=>1,
+                'zhiye'=>'fuzhu',//职业
                 'xibie'=>'shui',//系别
                 'buff'=>[],//buff
                 'linshiattr'=>[]//临时属性
@@ -129,7 +133,9 @@ class SszgController extends Controller
                 'wujian'=>10,//物理减伤
                 'shangjian'=>10,//伤害减免
                 'kangbao'=>20,//抗暴
-                'zhiye'=>'战士',//职业
+                'team'=>0,
+                'status'=>1,
+                'zhiye'=>'zhanshi',//职业
                 'xibie'=>'shui',//系别
                 'buff'=>[],//buff
                 'linshiattr'=>[]//临时属性
@@ -153,7 +159,9 @@ class SszgController extends Controller
                 'wujian'=>10,//物理减伤
                 'shangjian'=>10,//伤害减免
                 'kangbao'=>20,//抗暴
-                'zhiye'=>'辅助',//职业
+                'team'=>0,
+                'status'=>1,
+                'zhiye'=>'fuzhu',//职业
                 'xibie'=>'guang',//系别
                 'buff'=>[],//buff
                 'linshiattr'=>[]//临时属性
@@ -177,7 +185,9 @@ class SszgController extends Controller
                 'wujian'=>10,//物理减伤
                 'shangjian'=>10,//伤害减免
                 'kangbao'=>20,//抗暴
-                'zhiye'=>'肉盾',//职业
+                'team'=>0,
+                'status'=>1,
+                'zhiye'=>'roudun',//职业
                 'xibie'=>'huo',//系别
                 'buff'=>[],//buff
                 'linshiattr'=>[]//临时属性
@@ -203,7 +213,9 @@ class SszgController extends Controller
                 'wujian'=>10,//物理减伤
                 'shangjian'=>10,//伤害减免
                 'kangbao'=>20,//抗暴
-                'zhiye'=>'肉盾',//职业
+                'team'=>1,
+                'status'=>1,
+                'zhiye'=>'roudun',//职业
                 'xibie'=>'feng',//系别
                 'buff'=>[],//buff
                 'linshiattr'=>[]//临时属性
@@ -228,7 +240,9 @@ class SszgController extends Controller
                 'wujian'=>10,//物理减伤
                 'shangjian'=>10,//伤害减免
                 'kangbao'=>20,//抗暴
-                'zhiye'=>'辅助',//职业
+                'team'=>1,
+                'status'=>1,
+                'zhiye'=>'fuzhu',//职业
                 'xibie'=>'feng',//系别
                 'buff'=>[],//buff
                 'linshiattr'=>[]//临时属性
@@ -252,7 +266,9 @@ class SszgController extends Controller
                 'wujian'=>10,//物理减伤
                 'shangjian'=>10,//伤害减免
                 'kangbao'=>20,//抗暴
-                'zhiye'=>'肉盾',//职业
+                'team'=>1,
+                'status'=>1,
+                'zhiye'=>'roudun',//职业
                 'xibie'=>'shui',//系别
                 'buff'=>[],//buff
                 'linshiattr'=>[]//临时属性
@@ -276,7 +292,9 @@ class SszgController extends Controller
                 'wujian'=>10,//物理减伤
                 'shangjian'=>10,//伤害减免
                 'kangbao'=>20,//抗暴
-                'zhiye'=>'战士',//职业
+                'team'=>1,
+                'status'=>1,
+                'zhiye'=>'zhanshi',//职业
                 'xibie'=>'feng',//系别
                 'buff'=>[],//buff
                 'linshiattr'=>[]//临时属性
@@ -300,7 +318,9 @@ class SszgController extends Controller
                 'wujian'=>10,//物理减伤
                 'shangjian'=>10,//伤害减免
                 'kangbao'=>20,//抗暴
-                'zhiye'=>'法师',//职业
+                'team'=>1,
+                'status'=>1,
+                'zhiye'=>'fashi',//职业
                 'xibie'=>'shui',//系别
                 'buff'=>[],//buff
                 'linshiattr'=>[]//临时属性
@@ -315,11 +335,27 @@ class SszgController extends Controller
         $qipan->addRoles([$fengwang,$yemeng1]);//角色加入棋盘
 
         $buff= new buff;
-        $buff->roleGetBuff($fengwang,'chenmo');
-
+        $buff->roleGetBuffOb($fengwang,'chenmo');
         $fengwang->round();//风王的回合
-        // probability 概率的英文
 
+        
+        
+            $arr=[2,3,5,8,9,12,45,51,62,66];
+            $val=51;
+            $index=-1;
+            $max=count($arr);
+            $min=0;
+            
+            for ($i=0; $min < $max; $i++) { 
+                $zhong=ceil(($max+$min)/2);
+                echo $zhong;die;
+                if($arr[$zhong]==$val){
+                    echo 'key:'.$zhong;break;
+                }elseif ($arr[$zhong]<$val) {
+                    $min=$zhong;
+                    $zhong=ceil(($max+$min)/2);
+                }
+            }
         
 
     }

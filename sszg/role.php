@@ -3,30 +3,33 @@ namespace App\myclass\sszg;
 
 
 interface role{
-	// public function skill1($target);//主动
-	// public function skill2();//被动
-	// public function skill3();//主动
-	// public function skill4();//被动
-	// public function stageOfThebattlebegins();//整盘战斗开始阶段
-	// public function stageOfEndTheBattle();//整盘战斗结束阶段
-	// public function firstStageOfTheRound();//每回合第一阶段	回合开始阶段
-	// public function secondStageOfTheRound();//每回合第二阶段	神器阶段
-	// public function thirdStageOfTheRound();//每回合第三阶段	精灵阶段
-	// public function fourthStageOfTheRound();//每回合第四阶段	英雄行动阶段
-	// public function fifthStageOfTheRound();//每回合第五阶段	回合结束阶段
+	// private function skill1($target);//主动
+	// private function skill2();//被动
+	// private function skill3();//主动
+	// private function skill4();//被动
+	// public function useSkill1();//使用1技能
+	// public function useSkill3();//使用3技能
+	// public function attacking();//使用普通攻击
+	// private function stageOfThebattlebegins();//整盘战斗开始阶段
+	// private function stageOfEndTheBattle();//整盘战斗结束阶段
+	// private function firstStageOfTheRound();//每回合第一阶段	回合开始阶段
+	// private function secondStageOfTheRound();//每回合第二阶段	神器阶段
+	// private function thirdStageOfTheRound();//每回合第三阶段	精灵阶段
+	// private function fourthStageOfTheRound();//每回合第四阶段	英雄行动阶段
+	// private function fifthStageOfTheRound();//每回合第五阶段	回合结束阶段
 
-	// public function action();//每回合行动阶段
+	// private function action();//每回合行动阶段
 	// private function attack($attack_info);//攻击行为
-	// public function underAttack($attack_info);//受到攻击
-	// public function treatment();//治疗行为
-	// public function getTreatment();//受到治疗
-	// public function death();//死亡
-	// public function resurrection();//复活
-	// public function getStatus();//获得状态
-	// public function putStatus();//失去状态
-	// public function getBuff();//获得增益状态
-	// public function getDebuff();//获得减益状态
-	// public function valueChange();//值改变
+	// private function underAttack($attack_info);//受到攻击
+	// private function treatment();//治疗行为
+	// private function getTreatment();//受到治疗
+	// private function death();//死亡
+	// private function resurrection();//复活
+	// private function getStatus();//获得状态
+	// private function putStatus();//失去状态
+	// private function getBuff();//获得增益状态
+	// private function getDebuff();//获得减益状态
+	// private function valueChange();//值改变
 
 }
 

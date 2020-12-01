@@ -3,7 +3,7 @@ namespace App\myclass\sszg;
 
 
 class fengwang implements role{
-	use ob;
+	use ob\ob;
 	public $role=[];
 	public $qipan='';
 	public $skill=[
@@ -12,6 +12,10 @@ class fengwang implements role{
 			'fashiup'=>20,
 			'p'=>198,
 			'target'=>2,
+		],
+		'putong'=>[
+			'name'=>'普通攻击',
+			'p'=>100,
 		],
 	];
 
@@ -36,7 +40,8 @@ class fengwang implements role{
 	}
 
 
-	//棋盘
+
+	//加入棋盘
 	public function qipan($qipan){
 		$this->qipan=$qipan;
 	}
@@ -46,19 +51,25 @@ class fengwang implements role{
 	//回合开始
 	public function round(){
 		echo $this->role['name'].'的回合开始了。<br>';
+		$this->statementUseSkill();
+		//开始行动
+		$this->action();
+		$this->roundEnd();
+	}
+
+	public function roundEnd(){
+		echo $this->role['name'].'的回合结束。<br>';
+	}
+
+	//行动阶段
+	public function action(){
 		
 		$action_type='skill1';
 
-		//开始行动
-		$this->action($action_type);
-
-	}
-
-	//行动
-	public function action($action_type){
-		
 		//行动装饰
-		$this->beforeAction($action_type,$this);
+		$action_type=$this->beforeAction($action_type,$this,$this->qipan);
+		if($action_type==null){return false;}
+
 
 		//释放一技能
 		if($action_type=='skill1'){
@@ -69,13 +80,34 @@ class fengwang implements role{
 		$this->afterAction($action_type,$this);
 	}
 
+	// 使用技能
+	public function useSkill1(){
+		
+	}
+
+	//声明使用技能
+	public function statementUseSkill(){
+
+		//加成信息
+		$attack_info=[
+			'bacevalue'=>[$this->role['id'].'.a'=>$this->skill['putong']['p']]
+		];
+
+		$this->qipan->useTool('target','getTarget',[$this,[],$this->qipan]);die;
+
+		//目标
+		$target=[];
+
+	}
+
+
+	//1技能
 	public function skill1($skill_info=[]){
 		//技能信息
 		$skill=[
 			'fashiup'=>isset($skill_info['fashiup'])?$skill_info['fashiup']:20,
 			'p'=>isset($skill_info['p'])?$skill_info['p']:198,
 		];
-
 
 		$target=$this->qipan->getRole('yemeng1');
 		$skill_info=[//行动信息
@@ -85,6 +117,7 @@ class fengwang implements role{
 				'id'=>$this->qipan->getOnlyId(),
 				'type'=>'wuliattack',//行动类型 物理攻击
 			],
+			'other'=>[],//其他信息
 			'attack_info'=>[ //攻击信息
 				'main'=>[
 					'type'=>'wushang',//物理伤害
@@ -136,12 +169,20 @@ class fengwang implements role{
 		$this->attack($skill_info,$target);
 	}
 
-	//攻击
-	private function attack($info,$target){
-		//攻击装饰
-		$info= $this->beforeAttack($info);
+	//普通攻击数据
+	public function getAttacking(){
+		$info=[];
 
-		echo $this->role['name'].'攻击了'.$target->role['name'].'<br>';
+
+
+		return $info;
+	}
+
+	//进攻
+	private function attack($info,$target){
+
+		//攻击装饰 监听$info
+		$this->beforeAttack($info);
 
 		//调用目标的 受到攻击接口
 		$result= $target->underattack($info);
