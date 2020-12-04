@@ -25,7 +25,7 @@ namespace App\myclass\sszg\tool;
 
  		$info=[
  			'rang'=>[],//范围限定//all全部|enemy敌人|teammate队友|qian前排|zhong中|hou后排|one第一行|two第二|three第三|fashi法师|zhanshi战士|fuzhu辅助|roudun肉盾|life存活|death死亡|kongzhi控制|
- 			'where'=>'max_x',//筛选条件 max_*最大属性|min_*最小属性|rand随机
+ 			'where'=>'max_h_max',//筛选条件 max_*最大属性|min_*最小属性|rand随机|min_.h血量百分比最低|max_.h血量百分比最高
  			'number'=>1,//数量
  			'remove'=>[],//排除的角色ID
  		];
@@ -49,13 +49,67 @@ namespace App\myclass\sszg\tool;
 	 	//筛选条件 及数量
 	 	$this->where();
 	 	
-	 	print_r($this->rang);
+	 	foreach ($this->rang as $v) {
+ 			echo $v->getAttrString('name');
+ 		}
 
  	}
 
- 	//筛选条件  及数量
+ //筛选条件及数量
  	private function where(){
+
+ 		if(count($this->rang)<=$this->info['number']){
+ 			return false;
+ 		}
  		
+ 		if($this->info['where']=='rand'){
+ 			$this->rand_();
+ 		}else{
+ 			$this->max_min();
+ 		}
+ 	}
+
+ 	private function max_min(){
+
+ 		$arr =explode('max_',$this->info['where']);
+
+ 		$type='max';
+ 		if(!isset($arr[1])){
+
+ 			$arr =explode('min_',$this->info['where']);
+ 			$type='min';
+ 		}
+ 		
+ 		$val=[];
+ 		foreach ($this->rang as $k => $v) {
+ 			if(in_array($arr[1],['.h'])){
+ 				$val[$k]=$v->getAttrValue('h')/$v->getAttrValue('h_max');
+ 			}else{
+ 				$val[$k]=$v->getAttrValue($arr[1]);
+ 			}
+			
+			
+		}
+
+		for ($i=0; $i <$this->info['number'] ; $i++) { 
+			if($type=='max'){
+				unset($val[array_search(max($val), $val)]);
+			}else{
+				unset($val[array_search(min($val), $val)]);
+			}
+		}
+ 		foreach ($val as $k => $v) {
+ 			unset($this->rang[$k]);
+ 		}
+
+ 	}
+
+
+ 	//筛选条件 随机 
+ 	private function rand_(){
+ 			for ($i=0; $i < (count($this->rang)-$this->info['number']); $i++) { 
+ 				unset($this->rang[rand(0,count($this->rang)-1)]);
+ 			}
  	}
 
  	//重置标记
@@ -70,7 +124,6 @@ namespace App\myclass\sszg\tool;
  	private function rang($rang){
 		call_user_func_array([$this,$rang],[]);
  	}
-
 
 
 //排除特定id角色

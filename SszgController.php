@@ -303,7 +303,7 @@ class SszgController extends Controller
                 'id'=>'yemeng1',
                 'name'=>'耶梦加得',
                 'position'=>11,//行列
-                'h_max'=>1000000,
+                'h_max'=>1100000,
                 'h'=>695546,//生命值
                 'a'=>111816,//攻击力
                 'd'=>2046,//防御力
