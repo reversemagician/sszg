@@ -329,34 +329,23 @@ class SszgController extends Controller
 
         $qipan=new qipan(); //棋盘
 
-        $fengwang=new fengwang($u0[0]);
-        $yemeng1=new fengwang($u1[4]);
+        $fengwang=new fengwang($u0[0]);//风王
+        $qipan->addRole($fengwang);//角色加入棋盘
+        unset($u0[0]);
 
-        $qipan->addRoles([$fengwang,$yemeng1]);//角色加入棋盘
+        foreach ($u0 as $v) {
+            $qipan->addRole(new fengwang($v));//角色加入棋盘
+        }
+        foreach ($u1 as $v) {
+            $qipan->addRole(new fengwang($v));//角色加入棋盘
+        }
+
+
+        
 
         $buff= new buff;
         $buff->roleGetBuffOb($fengwang,'chenmo');
-        $fengwang->round();//风王的回合
-
-        
-        
-            $arr=[2,3,5,8,9,12,45,51,62,66];
-            $val=51;
-            $index=-1;
-            $max=count($arr);
-            $min=0;
-            
-            for ($i=0; $min < $max; $i++) { 
-                $zhong=ceil(($max+$min)/2);
-                echo $zhong;die;
-                if($arr[$zhong]==$val){
-                    echo 'key:'.$zhong;break;
-                }elseif ($arr[$zhong]<$val) {
-                    $min=$zhong;
-                    $zhong=ceil(($max+$min)/2);
-                }
-            }
-        
+        $fengwang->round();//风王的回合        
 
     }
 }

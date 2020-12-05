@@ -85,19 +85,51 @@ class fengwang implements role{
 		
 	}
 
+	// 技能1获取目标
+	public function gettarget(){
+		// 获取目标
+		$target_info=[//优先中后排2名随机敌人
+			'rang'=>['zhong','hou','life','enemy'],
+			'where'=>'rand',
+			'number'=>2,
+			'self_team'=>$this->getAttrString('team'),
+		];
+		//获取目标
+		$target=$this->qipan->useTool('target','getTargetId',[$target_info,$this->qipan]);
+
+		if(empty($target)){
+
+			$target_info=[
+				'rang'=>['life','enemy'],
+				'where'=>'rand',
+				'number'=>2,
+				'self_team'=>$this->getAttrString('team'),
+			];
+
+			$target=$this->qipan->useTool('target','getTargetId',[$target_info,$this->qipan]);
+
+		}elseif(count($target)==1){
+			
+			$target_info=[//后排目标不足选择前排1个随机目标
+				'rang'=>['qian','life','enemy'],
+				'where'=>'rand',
+				'number'=>1,
+				'self_team'=>$this->getAttrString('team'),
+			];
+
+			//获取并合并目标
+			array_merge($target,$this->qipan->useTool('target','getTargetId',[$target_info,$this->qipan]));
+		}
+	}
+	
 	//声明使用技能
 	public function statementUseSkill(){
-
+	
 		//加成信息
 		$attack_info=[
-			'bacevalue'=>[$this->role['id'].'.a'=>$this->skill['putong']['p']]
+			'bacevalue'=>[$this->role['id'].'.a'=>$this->skill['putong']['p']],
+			'target'=>$this->getTarget(),
 		];
-
-		$this->qipan->useTool('target','getTarget',[$this,[],$this->qipan]);die;
-
-		//目标
-		$target=[];
-
 	}
 
 
@@ -225,7 +257,6 @@ class fengwang implements role{
 
 	//
 	public function attackBuff($info){
-		print_r($info) ;
 		if($info['is']>=100){
 			$this->buff($info);
 		}else{

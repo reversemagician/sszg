@@ -7,28 +7,59 @@ namespace App\myclass\sszg\tool;
  class target
  {
  	private $rang=[];//array
- 	private $self='';//obj
  	private $info=[];
  	private $tips=[//标记
  		'pai'=>false,//前中后排
  		'hang'=>false,//一二三行
  		'zhiye'=>false,//职业标记
  	];
- 	public function getTarget($self,$info,$qipan){
 
+ 	/**
+	 * 获取目标id
+	 *@param array $info 获取条件信息 
+	 *@param object $qipan 棋盘 
+	 *@return array $ids 目标id数组
+	 */
+ 	public function getTargetId($info,$qipan){
+
+ 		$this->workResult($info,$qipan);
+ 		
+ 	
+ 		
+		$ids=[];
+		foreach ($this->rang as $key => $v) {
+			$ids[]=$v->getAttrString('id');
+		}
+		return $ids;
+ 	}
+
+ 	/**
+	 * 获取目标对象实例
+	 *@param array $info 获取条件信息 
+	 *@param object $qipan 棋盘 
+	 *@return array $ids 目标实例数组 |null
+	 */
+ 	public function getTarget($info,$qipan){
+
+ 		$this->workResult($info,$qipan);
+ 		
+ 		return $this->rang;
+ 	}
+
+ 	// 计算结果
+ 	private function workResult($info,$qipan){
  		//全部角色
  		$this->rang=$qipan->getRoles('all');
- 		//自身
- 		$this->self=$self;
  		//重置标记
  		$this->reTips();
 
- 		$info=[
- 			'rang'=>[],//范围限定//all全部|enemy敌人|teammate队友|qian前排|zhong中|hou后排|one第一行|two第二|three第三|fashi法师|zhanshi战士|fuzhu辅助|roudun肉盾|life存活|death死亡|kongzhi控制|
- 			'where'=>'max_h_max',//筛选条件 max_*最大属性|min_*最小属性|rand随机|min_.h血量百分比最低|max_.h血量百分比最高
- 			'number'=>1,//数量
- 			'remove'=>[],//排除的角色ID
- 		];
+ 		// $info=[
+ 		// 	'rang'=>[],//范围限定//all全部|enemy敌人|teammate队友|qian前排|zhong中|hou后排|one第一行|two第二|three第三|fashi法师|zhanshi战士|fuzhu辅助|roudun肉盾|life存活|death死亡|
+ 		// 	'where'=>'max_h_max',//筛选条件 max_*最大属性|min_*最小属性|rand随机|min_.h血量百分比最低|max_.h血量百分比最高
+ 		// 	'number'=>1,//数量
+ 		// 	'remove'=>[],//排除的角色ID
+ 		// 	'self_team'=>1,//自身队伍 当需要判断敌人或友方时需要该值
+ 		// ];
 
  		$this->info=$info;
 
@@ -49,10 +80,6 @@ namespace App\myclass\sszg\tool;
 	 	//筛选条件 及数量
 	 	$this->where();
 	 	
-	 	foreach ($this->rang as $v) {
- 			echo $v->getAttrString('name');
- 		}
-
  	}
 
  //筛选条件及数量
@@ -139,17 +166,15 @@ namespace App\myclass\sszg\tool;
  	private function all(){}
  	private function none(){}
  	private function enemy(){
- 		$team=$this->self->getAttrString('team');
  		foreach ($this->rang as $k =>$v) {
- 			if($team==$v->getAttrString('team')){
+ 			if($this->info['self_team']==$v->getAttrString('team')){
  				unset($this->rang[$k]);
  			}
  		}
  	}
  	private function teammate(){
- 		$team=$this->self->getAttrString('team');
  		foreach ($this->rang as $k =>$v) {
- 			if($team!=$v->getAttrString('team')){
+ 			if($this->info['self_team']!=$v->getAttrString('team')){
  				unset($this->rang[$k]);
  			}
  		}
@@ -291,6 +316,20 @@ namespace App\myclass\sszg\tool;
  			return false;
  		}
  		$this->zhiye_($zhiye);
+ 	}
+ 	private function life(){
+ 		foreach ($this->rang as $k => $v) {
+ 			if($v->getAttrString('status')!=1){
+ 				unset($this->rang[$k]);
+ 			}
+ 		}
+ 	}
+ 	private function death(){
+ 		foreach ($this->rang as $k => $v) {
+ 			if($v->getAttrString('status')!=0){
+ 				unset($this->rang[$k]);
+ 			}
+ 		}
  	}
 
 
