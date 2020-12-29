@@ -10,7 +10,10 @@ trait ob{
 	'beforeAttack'=>[//监听阶段
 			'xibiekezhi'=>['App\myclass\sszg\ob\xibie','getResult'],//系别克制加成监听
 		],
-	'beforeAction'=>[]
+	'beforeAction'=>[],
+	'underAttackWorking'=>[
+			'up'=>['App\myclass\sszg\ob\attackWork','getResult']
+		],
 	];
 
 	//初始化
@@ -96,6 +99,18 @@ trait ob{
 	//攻击之后
 	public function afterAttack($releas_info,$target){
 		
+	}
+
+	//被攻击伤害加成、减成结算中
+	public function underAttackWorking($attacker,$attack_info,&$up){
+
+		$obkey='underAttackWorking';
+		foreach ($this->getOb($obkey) as $k => $v) {
+
+			$up =array_merge($up,call_user_func_array([$v[0],$v[1]],[$attacker,$attack_info])) ;
+
+		}
+		return $up;
 	}
 
 	//回合开始

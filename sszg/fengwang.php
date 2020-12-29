@@ -146,10 +146,10 @@ class fengwang implements role{
 			'releaser'=>$this->role['id'],
 			'target'=>$target->getAttrString('id'),
 			'action_info'=>[
-				'id'=>$this->qipan->getOnlyId(),
+				'id'=>$this->qipan->getOnlyId(),//通用出手标识
 				'type'=>'wuliattack',//行动类型 物理攻击
 			],
-			'other'=>[],//其他信息
+			'other'=>['zhuiji',],//其他信息
 			'attack_info'=>[ //攻击信息
 				'main'=>[
 					'type'=>'wushang',//物理伤害
@@ -243,7 +243,10 @@ class fengwang implements role{
 			//攻击处理
 			if(in_array($v['type'],$attack_rang)){
 				$info = $this->underAttackWork($v,$attacker);
+
+				print_r($info);die;
 			}
+
 
 			//buff处理
 			if(in_array($v['type'],$buff_rang)){
@@ -300,10 +303,16 @@ class fengwang implements role{
 		
 			$arr['bace']=$this->attack_bace($attack_info);//基础伤害
 
-			//进攻结算
-			$arr['up']=$this->qipan->useTool('attackWork','getResult',[$attacker,$attack_info]);
+			$arr['up']=[];//伤害加成、减成
+			$arr['down']=[];//防御结算
+
+
 			
-			//防御结算
+			//监听 受攻击伤害加成、减成
+			$this->underAttackWorking($attacker,$attack_info,$arr['up']);
+			echo "555555";die;
+
+			//监听 防御结算
 			$arr['down']=$this->qipan->useTool('defenseWork','getResult',[$this,$attack_info]);;//伤害减免信息
 
 				

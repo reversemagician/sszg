@@ -11,7 +11,6 @@ class qipan
 	private $role=[];//棋盘上的角色
 
 	private $tool=[
-		'attackWork'=>'App\myclass\sszg\tool\attackWork',//攻击结算
         'defenseWork'=>'App\myclass\sszg\tool\defenseWork',//防守结算
         'ordinary'=>'App\myclass\sszg\tool\ordinary',//常用工具类集合
         'buff'=>'App\myclass\sszg\buff\buff',//buff类
