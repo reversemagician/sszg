@@ -1,9 +1,10 @@
 <?php
 namespace App\myclass\sszg;
+use App\myclass\sszg\ob;
+use App\myclass\sszg\role\bace;
 
-
-class fengwang implements role{
-	use ob\ob;
+class role{
+	use ob,bace;
 	public $role=[];
 	public $qipan='';
 	public $skill=[

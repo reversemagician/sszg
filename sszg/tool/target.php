@@ -2,7 +2,7 @@
 namespace App\myclass\sszg\tool;
 
  /**
- * 通用目标选择
+ * 通用目标选择器
  */
  class target
  {
@@ -35,11 +35,20 @@ namespace App\myclass\sszg\tool;
 
  	/**
 	 * 获取目标对象实例
-	 *@param array $info 获取条件信息 
+	 *@param array $info 获取条件信息
 	 *@param object $qipan 棋盘 
 	 *@return array $ids 目标实例数组 |null
 	 */
  	public function getTarget($info,$qipan){
+		/*
+			$info=[
+	 			'rang'=>[],//范围限定//all全部|enemy敌人|teammate队友|qian前排|zhong中|hou后排|one第一行|two第二|three第三|fashi法师|zhanshi战士|fuzhu辅助|roudun肉盾|life存活|death死亡|
+	 			'where'=>'max_h_max',//筛选条件 max_*最大属性|min_*最小属性|rand随机|min_.h血量百分比最低|max_.h血量百分比最高
+	 			'number'=>1,//数量
+	 			'remove'=>[],//排除的角色ID
+	 			'self_team'=>1,//自身队伍 当需要判断敌人或友方时需要该值
+	 		];
+ 		*/
 
  		$this->workResult($info,$qipan);
  		
@@ -49,17 +58,9 @@ namespace App\myclass\sszg\tool;
  	// 计算结果
  	private function workResult($info,$qipan){
  		//全部角色
- 		$this->rang=$qipan->getRoles('all');
+ 		$this->rang=$qipan->getAllRoles();
  		//重置标记
  		$this->reTips();
-
- 		// $info=[
- 		// 	'rang'=>[],//范围限定//all全部|enemy敌人|teammate队友|qian前排|zhong中|hou后排|one第一行|two第二|three第三|fashi法师|zhanshi战士|fuzhu辅助|roudun肉盾|life存活|death死亡|
- 		// 	'where'=>'max_h_max',//筛选条件 max_*最大属性|min_*最小属性|rand随机|min_.h血量百分比最低|max_.h血量百分比最高
- 		// 	'number'=>1,//数量
- 		// 	'remove'=>[],//排除的角色ID
- 		// 	'self_team'=>1,//自身队伍 当需要判断敌人或友方时需要该值
- 		// ];
 
  		$this->info=$info;
 
@@ -275,7 +276,7 @@ namespace App\myclass\sszg\tool;
  			}
  		}
  	}
- 	//zhiye
+ 	//职业
  	private function zhiye($title){
  		if($this->tips['zhiye']){
  			return null;

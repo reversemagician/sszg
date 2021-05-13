@@ -329,23 +329,14 @@ class SszgController extends Controller
 
         $qipan=new qipan(); //棋盘
 
-        $fengwang=new fengwang($u0[0]);//风王
-        $qipan->addRole($fengwang);//角色加入棋盘
-        unset($u0[0]);
-
         foreach ($u0 as $v) {
             $qipan->addRole(new fengwang($v));//角色加入棋盘
         }
         foreach ($u1 as $v) {
             $qipan->addRole(new fengwang($v));//角色加入棋盘
-        }
+        } 
 
-
-        
-
-        $buff= new buff;
-        $buff->roleGetBuffOb($fengwang,'chenmo');
-        $fengwang->round();//风王的回合        
+        $qipan->gameBegin();//战斗开始      
 
     }
 }

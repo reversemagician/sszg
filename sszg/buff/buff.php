@@ -2,7 +2,7 @@
 namespace App\myclass\sszg\buff;
 
 /**
-* buff类
+* buff 释放类
 */
 class buff
 {
@@ -14,6 +14,13 @@ class buff
 				'func'=>'beforeAttack',//对应buff类方法
 			],
 		],
+		// 'xuanyun'=>[
+		// 	'obj'=>'App\myclass\sszg\buff\xuanyun',//对象
+		// 	[
+		// 		'oblevel'=>'beforeAttack',//监听阶段
+		// 		'func'=>'beforeAttack',//对应buff类方法
+		// 	],
+		// ],
 	];
 
 
