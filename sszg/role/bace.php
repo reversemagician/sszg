@@ -6,10 +6,18 @@ trait bace{
 
 	//血量改变
 	public function change_h($value){
+
+		if($this->role['h']+$value<=0){
+			$value=-$this->role['h'];
+		}
+
 		$this->role['h']=$this->role['h']+$value;
+
 		if($value<0){
 			echo $this->role['name'].'受到伤害hp'.$value.'<br>';
 		}
+
+		return $value;
 	}
 
 	//获取属性值 $rang指定获取范围
@@ -63,6 +71,16 @@ trait bace{
 	// 获取字符串属性
 	public function getAttrString($name){
 		return isset($this->role[$name])?$this->role[$name]:null;
+	}
+
+	// 执行伤害
+	private function hurt($arr){
+		
+		foreach ($arr as $k => $v) {
+			$arr[$k]['hurt'] = $this->change_h(-$v['value']);
+		}
+
+		return $arr;
 	}
 	
 }

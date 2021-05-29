@@ -18,9 +18,9 @@ class qipan
 
 	private $tool=[
         'defenseWork'=>'App\myclass\sszg\tool\defenseWork',//防守结算
-        'ordinary'=>'App\myclass\sszg\tool\ordinary',//常用工具类集合
+        'ordinary'=>'App\myclass\sszg\qipan\tool\ordinary',//常用工具类集合
         'buff'=>'App\myclass\sszg\buff\buff',//buff类
-        'target'=>'App\myclass\sszg\tool\target'//通用目标器
+        'target'=>'App\myclass\sszg\qipan\tool\target'//通用目标器
 	];//工具
 
 	function __construct()

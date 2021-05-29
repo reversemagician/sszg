@@ -4,7 +4,7 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\myclass\sszg\sszg;
-use App\myclass\sszg\fengwang;
+use App\myclass\sszg\hero\zhanshi\fengwang as role;
 use App\myclass\sszg\qipan;
 use App\myclass\sszg\attack;
 use App\myclass\sszg\buff\buff;
@@ -224,7 +224,7 @@ class SszgController extends Controller
             [
                 'id'=>'pan1',
                 'name'=>'潘',
-                'position'=>11,//行列
+                'position'=>12,//行列
                 'h_max'=>1000000,
                 'h'=>1013385,//生命值
                 'a'=>93269,//攻击力
@@ -250,9 +250,9 @@ class SszgController extends Controller
             [
                 'id'=>'taitan1',
                 'name'=>'泰坦',
-                'position'=>11,//行列
+                'position'=>13,//行列
                 'h_max'=>1000000,
-                'h'=>743057,//生命值
+                'h'=>50,//生命值
                 'a'=>51958,//攻击力
                 'd'=>3056,//防御力
                 's'=>1802,//速度
@@ -276,7 +276,7 @@ class SszgController extends Controller
             [
                 'id'=>'fengwang1',
                 'name'=>'风王',
-                'position'=>11,//行列
+                'position'=>21,//行列
                 'h_max'=>1000000,
                 'h'=>538986,//生命值
                 'a'=>108511,//攻击力
@@ -302,7 +302,7 @@ class SszgController extends Controller
             [
                 'id'=>'yemeng1',
                 'name'=>'耶梦加得',
-                'position'=>11,//行列
+                'position'=>22,//行列
                 'h_max'=>1100000,
                 'h'=>695546,//生命值
                 'a'=>111816,//攻击力
@@ -326,17 +326,19 @@ class SszgController extends Controller
                 'linshiattr'=>[]//临时属性
             ]
         ];
-
+echo 5%4;
         $qipan=new qipan(); //棋盘
 
         foreach ($u0 as $v) {
-            $qipan->addRole(new fengwang($v));//角色加入棋盘
+            $qipan->addRole(new role($v));//角色加入棋盘
         }
         foreach ($u1 as $v) {
-            $qipan->addRole(new fengwang($v));//角色加入棋盘
+            $qipan->addRole(new role($v));//角色加入棋盘
         } 
 
         $qipan->gameBegin();//战斗开始      
+        $attack_info=$qipan->getRecordInfo();   
+        // print_r($attack_info);
 
     }
 }

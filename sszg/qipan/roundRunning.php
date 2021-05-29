@@ -92,24 +92,49 @@ trait roundRunning
 	}
 
 	private function round_level0(){
-		echo '阶段'.$this->round_info['round_level'].'：回合开始阶段,<br>';
+		// echo '回合开始阶段：；<br>';
 	}
 	private function round_level1(){
-		echo '阶段'.$this->round_info['round_level'].'<br>';
-		if ($this->round_info['round']==9) {
-			$this->game_over();
-		}
+		// echo '精灵阶段：；<br>';
 	}
 	private function round_level2(){
-		echo '阶段'.$this->round_info['round_level'].'：英雄攻击阶段,<br>';
+		echo '英雄行动阶段：<br>';
 		$this->roleAction();
 	}
 	private function round_level3(){
-		echo '阶段'.$this->round_info['round_level'].'<br>';
+		// echo '回合结束阶段：；<br>';
 	}
 
-	private function is_game_over(){
-		return ($this->game_status==2);
+	public function is_game_over(){
+
+		if($this->round_info['round_max']<$this->round_info['round']){
+			$this->game_status=2;
+			return true;
+		}
+
+		$info=[
+	 			'rang'=>['life','enemy'],
+	 			'where'=>'rand',
+	 			'number'=>100,
+	 			'remove'=>[],
+	 			'self_team'=>1,
+	 		];
+
+		$life =$this->useTool('target','getTarget',[$info,$this]);
+
+		if (empty($life)) {
+			$this->game_status=2;
+			return true;
+		}
+		$info['self_team']=0;
+
+		$life =$this->useTool('target','getTarget',[$info,$this]);
+		if (empty($life)) {
+			$this->game_status=2;
+			return true;
+		}
+
+		return false;
 	}
 
 	// 战斗结算

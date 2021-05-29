@@ -1,12 +1,13 @@
 <?php
 namespace App\myclass\sszg\qipan;
+use App\myclass\sszg\qipan\recordInfo;
 
 /**
  * 角色行动器
  */
 trait roleAction
 {
-
+	use recordInfo;
 	private $actioned_role=[];//已经行动过的角色
 	private $actioning_role=''; //正在行动的角色ID
 	private $is_overAction=false;//是否全部行动结束
@@ -26,7 +27,11 @@ trait roleAction
 
 	//当前角色行动中
 	private function roleActioning(){
-		$this->getRole($this->actioning_role)->round();// 执行角色行动
+		$info =$this->getRole($this->actioning_role)->round();// 执行角色行动
+
+		//记录信息
+		$this->recordRoleActionInfo($info);
+
 		$this->actioned_role();//标记已行动
 		$this->nextRoleAction();//下一个角色行动
 	}
@@ -63,7 +68,7 @@ trait roleAction
 
 		//调用棋盘的工具类筛选行动目标
 		$id =$this->useTool('target','getTargetId',[$where,$this]);
-		
+
 		//已经没有可行动角色
 		if(empty($id)){
 			$this->is_overAction=true;//标记所有行动结束
