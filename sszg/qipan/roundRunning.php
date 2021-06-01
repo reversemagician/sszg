@@ -72,7 +72,7 @@ trait roundRunning
 	}
 	// 回合结束
 	private function roundEnd(){
-		echo "回合结束<br><br>";	
+		echo "第{$this->round_info['round']}回合结束<br><br>";	
 		if ($this->is_game_over()) {return false;};
 		$this->round_info['round']++;
 	}

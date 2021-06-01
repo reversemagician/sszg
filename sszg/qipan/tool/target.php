@@ -68,7 +68,7 @@ namespace App\myclass\sszg\qipan\tool;
 		
 		$titles=[
 			'rand_zhonghou',//优先中后排 随机目标 指定数量， $extends=['number'=>all];
-			'attack',//通用普通攻击目标 
+			'putong',//通用普通攻击目标 
 		];
 
 		foreach ($titles as $k => $v) {
@@ -83,6 +83,7 @@ namespace App\myclass\sszg\qipan\tool;
 
  	// 计算结果
  	private function workResult($info,$qipan){
+
  		//全部角色
  		$this->rang=$qipan->getAllRoles();
  		//重置标记
@@ -408,11 +409,14 @@ namespace App\myclass\sszg\qipan\tool;
  	}
 
  	//通用普通攻击
- 	private function attack($team,$role,$extends=[]){
+ 	private function putong($team,$role,$extends=[]){
+
  		$position=$role->getAttrString('position');
+
  		$row =substr($position, 0,1);
+
  		$info=[
-	 			'rang'=>['qian','life',$team],
+	 			'rang'=>['qian','life'],
 	 			'where'=>'rand',
 	 			'number'=>3,
 	 			'remove'=>[],
@@ -423,10 +427,11 @@ namespace App\myclass\sszg\qipan\tool;
 	 	$p=[3,2,1];
 	 	unset($p[array_search($row,$p)]);
 	 	$p=array_merge([$row],$p);
-
-	 	$target=$this->getTargetId($info,$role->qipan);
+	 	
+	 	$target=$this->getTarget($info,$role->qipan);
 
 	 	if (empty($target)) {
+
 	 		$info=[
 	 			'rang'=>['zhong','life',$team],
 	 			'where'=>'rand',
@@ -434,9 +439,10 @@ namespace App\myclass\sszg\qipan\tool;
 	 			'remove'=>[],
 	 			'self_team'=>$role->getAttrString('team'),
 	 		];
-	 		$target=$this->getTargetId($info,$role->qipan);
+	 		$target=$this->getTarget($info,$role->qipan);
 
 	 		if (empty($target)) {
+
 	 			//末位后排
 		 		$info=[
 		 			'rang'=>['hou','life',$team],
@@ -445,7 +451,7 @@ namespace App\myclass\sszg\qipan\tool;
 		 			'remove'=>[],
 		 			'self_team'=>$role->getAttrString('team'),
 		 		];
-		 		$target=$this->getTargetId($info,$role->qipan);
+		 		$target=$this->getTarget($info,$role->qipan);
 
 		 		$target_key=0;
 		 		$p_key=2;
@@ -456,9 +462,10 @@ namespace App\myclass\sszg\qipan\tool;
 		 				$target_key=$k;
 		 			}
 		 		}
-		 		return $target[$target_key];
+		 		return $target[$target_key]->getAttrString('id');
 		 		
 		 	}else{
+
 		 		//顺位中排
 		 		$target_key=0;
 		 		$p_key=2;
@@ -469,9 +476,10 @@ namespace App\myclass\sszg\qipan\tool;
 		 				$target_key=$k;
 		 			}
 		 		}
-		 		return $target[$target_key];
+		 		return $target[$target_key]->getAttrString('id');
 		 	}
 	 	}else{
+
 	 		//优先前排
 	 		$target_key=0;
 	 		$p_key=2;
@@ -482,7 +490,7 @@ namespace App\myclass\sszg\qipan\tool;
 	 				$target_key=$k;
 	 			}
 	 		}
-	 		return $target[$target_key];
+	 		return $target[$target_key]->getAttrString('id');
 	 	}
  	}	
 

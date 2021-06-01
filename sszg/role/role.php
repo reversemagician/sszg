@@ -3,14 +3,17 @@ namespace App\myclass\sszg\role;
 use App\myclass\sszg\role\ob\ob;
 use App\myclass\sszg\role\bace;
 use App\myclass\sszg\role\baceTarget;
-use App\myclass\sszg\role\underAttack;
+use App\myclass\sszg\role\attack;
 use App\myclass\sszg\role\buff;
 
+
+/*
+角色类
+ */
 class role{
-	use ob,bace,baceTarget,underAttack,buff;
+	use ob,bace,baceTarget,attack,buff;
 	public $role=[];
-	public $qipan='';
-	public $skill=[];
+	
 
 	public $action=[
 			'role_id'=>'',//ID
@@ -21,11 +24,10 @@ class role{
 			'extends'=>[],//扩展参数
 		];
 
+	public $qipan='';
 	//初始化时执行的自身方法
 	protected $inti=[
-
 		'obInti',//ob类初始化
-	
 	];
 
 	public function __construct($role_info){
@@ -41,6 +43,7 @@ class role{
 		}
 	}
 
+	//行动数据初始化
 	protected function actionInti(){
 		$this->action['role_id']=$this->getAttrString('id');
 		$this->action['action_id']=$this->qipan->getOnlyId();
@@ -76,7 +79,7 @@ class role{
 			return false;
 		}
 
-		$this->actionInti();
+		$this->actionInti();//行动数据初始化
 		
 		$action_type =$action_type==''?$this->getActionType():$action_type;
 
@@ -88,7 +91,7 @@ class role{
 		$this->actioning($action_type);
 
 		//行动装饰
-		$this->afterAction($this->action,$this);
+		$this->afterAction($this->action);
 	}
 
 	// 获取行动方式 
@@ -104,6 +107,7 @@ class role{
 		}
 	}
 
+	//行动类型
 	public function actioning($action_type){
 		//释放一技能
 		if($action_type=='skill1'){

@@ -83,5 +83,11 @@ trait roleAction
 	private function overAction(){
 
 	}
+
+	//获取已经行动的角色
+	public function getActionedRole($value='')
+	{
+		return $this->actioned_role;
+	}
 }
 ?>

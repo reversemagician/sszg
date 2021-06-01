@@ -7,26 +7,44 @@ trait ob{
 	private $i='nihao';
 
 	private $ob=[
-	'beforeUnderattack'=>[//监听阶段
-			'xibiekezhi'=>['App\myclass\sszg\role\ob\xibie','getResult'],//系别克制加成监听
+	'beforeUnderattack'=>[//受到攻击之前
+			'xibiekezhi'=>['App\myclass\sszg\role\ob\other\xibie','getResult'],//系别克制加成
 		],
-	'beforeAction'=>[],
-	'attackWork'=>[
-		['App\myclass\sszg\role\ob\attackExtendsWork\attackExtendsWork','getResult'],
+	'beforeAction'=>[//行动之前
 	],
+	'beforeHurt'=>[
+			['App\myclass\sszg\role\ob\hurtExtendsWork\hurtExtendsWork','getResult']//各类伤害加成、伤害减免计算
+		],
+	'beforeAttack'=>[//出手攻击之前
+			['App\myclass\sszg\role\ob\other\addInfo','getResult'],//增加额外的信息
+			['App\myclass\sszg\role\ob\other\news','beforeAttack'],//新闻播报
+		],
+	'afterUnderattack'=>[//受到攻击之后
+			['App\myclass\sszg\role\ob\other\news','afterUnderattack'],//新闻播报
+		],
 	];
 
 	//初始化
 	public function obInti(){
 
+		//防止重复实例化
+		$class=[];
 		//实例化装饰类
 		foreach ($this->ob as $k => $v) {
+			
 			foreach ($v as $key => $value) {
 				
-				if(!is_object($value[0])) {$v[$key][0]= new $value[0];};
+				if(!is_object($value[0])) { 
+
+					$v[$key][0]=isset($class[$value[0]])?$class[$value[0]]:(new $value[0]); 
+
+					$class[$value[0]]=$v[$key][0];
+
+				};
 			}
 			$this->ob[$k]=$v;
 		}
+
 	}
 
 	//获取监听 $key 监听阶段key
@@ -67,10 +85,20 @@ trait ob{
 		}
 	}
 
+	//回合开始之前 包括回合开始
+	private function beforeRound(){
+
+	}
+
+	//回合开始之后
+	private function afterRound($info){
+		return $info;
+	}
+
 	//行动之前
 	private function beforeAction($action_type){
-		$obkey='beforeAction';
-		foreach ($this->getOb($obkey) as $k => $v) {
+
+		foreach ($this->getOb(__FUNCTION__) as $k => $v) {
 
 			call_user_func_array([$v[0],$v[1]],[]);
 
@@ -78,15 +106,16 @@ trait ob{
 	}
 
 	//行动之后
-	private function afterAction($action_type,$self){
-		print_r($action_type);die;
+	private function afterAction($action_type){
+		
 	}
+
 	//攻击之前
 	private function beforeAttack(&$attack_info){
-		$obkey='beforeAttack';
+
 		$releaser =$this->qipan->getRole($attack_info['releaser'])->getAttrString('name');
-		echo $releaser.'出手攻击了';	
-		foreach ($this->getOb($obkey) as $k => $v) {
+
+		foreach ($this->getOb(__FUNCTION__) as $k => $v) {
 
 			$attack_info =call_user_func_array([$v[0],$v[1]],[$attack_info,$this->qipan]);
 
@@ -95,50 +124,42 @@ trait ob{
 		if($attack_info==null){return false;}
 			
 	}
-	//攻击之后
-	private function afterAttack($result){
-		
-	}
-
-	// 扩展攻击结算 
-	private function attackWork($arr,$attack_info,$attacker,$under_attacker){
-		$obkey='attackWork';
-		foreach ($this->getOb($obkey) as $k => $v) {
-
-			$arr =call_user_func_array([$v[0],$v[1]],[$arr,$attack_info,$attacker,$under_attacker]);
-
-		}
-		
-		return $arr;
-	}
-
-	// 受到攻击之前
+	
+	//受到攻击之前
 	private function beforeUnderattack(&$attack_info){
-
-		$obkey='beforeUnderattack';
 		
-		foreach ($this->getOb($obkey) as $k => $v) {
+		foreach ($this->getOb(__FUNCTION__) as $k => $v) {
 
 			$attack_info =call_user_func_array([$v[0],$v[1]],[$attack_info,$this->qipan]);
 
 		}
 	}
 
-	// 受到攻击之后
-	private function afterUnderattack($info){
-
+	//攻击之后
+	private function afterAttack($result){
 		
-		$target=$this->qipan->getRole($info['target']);
-		echo $target->getAttrString('name').'剩余血量：'.$target->getAttrString('h').'<br>';
-		return $info;
 	}
 
-	//回合开始
-	private function beforeRound(){
+	// 受到伤害之后
+	private function afterUnderattack($info){
+		
+		foreach ($this->getOb(__FUNCTION__) as $k => $v) {
 
+			$attack_info =call_user_func_array([$v[0],$v[1]],[$info,$this->qipan]);
+
+		}
 	}
 
-	private function afterRound($info){
-		return $info;
+	//结算伤害之前 扩展攻击结算 
+	private function beforeHurt(&$hurt,$attack_info){
+		//去掉原有结算
+		$hurt=[];
+
+		foreach ($this->getOb(__FUNCTION__) as $k => $v) {
+			
+			$hurt =call_user_func_array([$v[0],$v[1]],[$hurt,$attack_info,$this->qipan]);
+
+		}
+		
 	}
 }

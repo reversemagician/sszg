@@ -13,10 +13,6 @@ trait bace{
 
 		$this->role['h']=$this->role['h']+$value;
 
-		if($value<0){
-			echo $this->role['name'].'受到伤害hp'.$value.'<br>';
-		}
-
 		return $value;
 	}
 

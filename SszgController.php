@@ -13,9 +13,6 @@ use DB;
 class SszgController extends Controller
 {
 
-    private $ob=[
-    'beforeAttack'=>'App\myclass\sszg\ob\xibie',
-    ];
 	public function list(){
         $rolebuff=[
             [
@@ -98,7 +95,7 @@ class SszgController extends Controller
                 'd'=>1770,//防御力
                 's'=>1379,//速度
                 'mingzhong'=>100,//命中
-                'baoji'=>100,//暴击
+                'baoji'=>1,//暴击
                 'baoshang'=>150,//暴伤
                 'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
@@ -118,13 +115,13 @@ class SszgController extends Controller
                 'id'=>'neza0',
                 'name'=>'哪吒',
                 'position'=>33,//行列
-                'h_max'=>1000000,
+                'h_max'=>2000000,
                 'h'=>110116,//生命值
                 'a'=>100116,//攻击力
                 'd'=>1873,//防御力
                 's'=>1788,//速度
                 'mingzhong'=>100,//命中
-                'baoji'=>100,//暴击
+                'baoji'=>67,//暴击
                 'baoshang'=>150,//暴伤
                 'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
@@ -150,7 +147,7 @@ class SszgController extends Controller
                 'd'=>2242,//防御力
                 's'=>2211,//速度
                 'mingzhong'=>100,//命中
-                'baoji'=>100,//暴击
+                'baoji'=>4,//暴击
                 'baoshang'=>150,//暴伤
                 'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
@@ -170,13 +167,13 @@ class SszgController extends Controller
                 'id'=>'haimu0',
                 'name'=>'海姆',
                 'position'=>21,//行列
-                'h_max'=>1000000,
+                'h_max'=>2000000,
                 'h'=>1611917,//生命值
                 'a'=>69764,//攻击力
                 'd'=>3184,//防御力
                 's'=>2016,//速度
                 'mingzhong'=>100,//命中
-                'baoji'=>100,//暴击
+                'baoji'=>0,//暴击
                 'baoshang'=>150,//暴伤
                 'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
@@ -198,13 +195,13 @@ class SszgController extends Controller
                 'id'=>'xiongmao1',
                 'name'=>'熊猫',
                 'position'=>11,//行列
-                'h_max'=>1000000,
+                'h_max'=>2000000,
                 'h'=>1173333,//生命值
                 'a'=>76856,//攻击力
                 'd'=>2828,//防御力
                 's'=>1987,//速度
                 'mingzhong'=>100,//命中
-                'baoji'=>100,//暴击
+                'baoji'=>0,//暴击
                 'baoshang'=>150,//暴伤
                 'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
@@ -225,13 +222,13 @@ class SszgController extends Controller
                 'id'=>'pan1',
                 'name'=>'潘',
                 'position'=>12,//行列
-                'h_max'=>1000000,
+                'h_max'=>2000000,
                 'h'=>1013385,//生命值
                 'a'=>93269,//攻击力
                 'd'=>2248,//防御力
                 's'=>1920,//速度
                 'mingzhong'=>100,//命中
-                'baoji'=>100,//暴击
+                'baoji'=>0,//暴击
                 'baoshang'=>150,//暴伤
                 'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
@@ -257,7 +254,7 @@ class SszgController extends Controller
                 'd'=>3056,//防御力
                 's'=>1802,//速度
                 'mingzhong'=>100,//命中
-                'baoji'=>100,//暴击
+                'baoji'=>0,//暴击
                 'baoshang'=>150,//暴伤
                 'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
@@ -283,7 +280,7 @@ class SszgController extends Controller
                 'd'=>1882,//防御力
                 's'=>1778,//速度
                 'mingzhong'=>100,//命中
-                'baoji'=>100,//暴击
+                'baoji'=>70,//暴击
                 'baoshang'=>150,//暴伤
                 'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
@@ -309,7 +306,7 @@ class SszgController extends Controller
                 'd'=>2046,//防御力
                 's'=>1852,//速度
                 'mingzhong'=>100,//命中
-                'baoji'=>100,//暴击
+                'baoji'=>48,//暴击
                 'baoshang'=>150,//暴伤
                 'shanghai'=>22,//伤害加成
                 'wushang'=>10,//物理伤害加成
@@ -326,7 +323,7 @@ class SszgController extends Controller
                 'linshiattr'=>[]//临时属性
             ]
         ];
-echo 5%4;
+
         $qipan=new qipan(); //棋盘
 
         foreach ($u0 as $v) {
