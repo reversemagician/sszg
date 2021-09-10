@@ -10,14 +10,13 @@ trait roundRunning
 
 	private $round_info=[//回合信息
 		'round'=>1,//当期回合数
-		'round_max'=>20,//
+		'round_max'=>20,//最大回合数
 		'round_level'=>0,//当前回合阶段 0是回合开始阶段 1精灵阶段 2英雄行动阶段 3回合结束阶段
-		'action_role_id'=>1,//英雄行动阶段 正在行动的英雄的id
-
 	];
 
 	// 游戏开始
 	public function gameBegin(){
+		$this->obGameStart();
 		$this->round_loop();
 		$this->gameEnd();
 	}
@@ -32,34 +31,34 @@ trait roundRunning
 		return $this->round_info['round'];
 	}
 
+	public function getRoundInfo(){
+		return $this->round_info;
+	}
+
 	// 游戏结束
 	private function gameEnd(){
-		
-		echo "战斗结束,正在结算数据<br>";
-
-		//数据结算
-		$this->dataWork();
+		$this->obGameEnd();
 	}
 
 	//多回合循环运行
 	private function round_loop(){
-		
-		if( $this->round_info['round']==($this->round_info['round_max']+1)||
-			$this->is_game_over()){
-			//回合循环结束
-			return false;
-		}else{
 
+		for ($i=1; $i <= $this->round_info['round_max']; $i++) { 
+
+			if($this->is_game_over()){
+				//回合循环结束
+				break;
+			}
+			
 			//单回合开始
 			$this->roundBegin();
+
 		}
-		//循环自身
-		$this->round_loop();
 	}
 	
 	//单回合开始
 	private function roundBegin(){
-		echo "第{$this->round_info['round']}回合开始：<br>";
+		$this->obRoundStart();
 		$this->round_level_begin();
 
 	}
@@ -72,7 +71,7 @@ trait roundRunning
 	}
 	// 回合结束
 	private function roundEnd(){
-		echo "第{$this->round_info['round']}回合结束<br><br>";	
+		$this->obRoundEnd();	
 		if ($this->is_game_over()) {return false;};
 		$this->round_info['round']++;
 	}
@@ -88,7 +87,6 @@ trait roundRunning
 		$this->round_info['round_level']=3;
 		$this->round_level3();if ($this->is_game_over()) {return false;}
 		$this->round_info['round_level']=0;
-		return false;
 	}
 
 	private function round_level0(){
@@ -98,13 +96,14 @@ trait roundRunning
 		// echo '精灵阶段：；<br>';
 	}
 	private function round_level2(){
-		echo '英雄行动阶段：<br>';
+		$this->ObRoundLevel2();
 		$this->roleAction();
 	}
 	private function round_level3(){
 		// echo '回合结束阶段：；<br>';
 	}
 
+	//判断游戏是否结束
 	public function is_game_over(){
 
 		if($this->round_info['round_max']<$this->round_info['round']){
@@ -117,18 +116,17 @@ trait roundRunning
 	 			'where'=>'rand',
 	 			'number'=>100,
 	 			'remove'=>[],
-	 			'self_team'=>1,
 	 		];
 
-		$life =$this->useTool('target','getTarget',[$info,$this]);
+
+		$life =$this->useTool('target','getTarget',[$info,$this->getRoleByWhere('fristteam0')]);
 
 		if (empty($life)) {
 			$this->game_status=2;
 			return true;
 		}
-		$info['self_team']=0;
 
-		$life =$this->useTool('target','getTarget',[$info,$this]);
+		$life =$this->useTool('target','getTarget',[$info,$this->getRoleByWhere('fristteam1')]);
 		if (empty($life)) {
 			$this->game_status=2;
 			return true;
@@ -137,9 +135,5 @@ trait roundRunning
 		return false;
 	}
 
-	// 战斗结算
-	private function dataWork(){
-
-	}
 }
 ?>

@@ -6,14 +6,27 @@ use App\Http\Controllers\Controller;
 use App\myclass\sszg\sszg;
 use App\myclass\sszg\hero\zhanshi\fengwang as role;
 use App\myclass\sszg\qipan;
-use App\myclass\sszg\attack;
-use App\myclass\sszg\buff\buff;
 use DB;
+use App\myclass\rpg\role\hero\tongxiangyu as one;
 
 class SszgController extends Controller
 {
 
-	public function list(){
+    public function role(){
+        $role =new one();
+    }
+
+    public function index(){
+
+        return view('admin/sszg/index');
+    }
+
+    public function fight(){
+
+        return view('admin/sszg/fight');
+    }
+
+	public function fight_info(){
         $rolebuff=[
             [
                 'id'=>0,//唯一标识
@@ -61,10 +74,10 @@ class SszgController extends Controller
         $u0=[
             [   
                 'id'=>'fengwang0',
-                'name'=>'风王',
+                'name'=>'0风王',
                 'position'=>13,//行列
-                'h_max'=>1000000,
-                'h'=>442705,//生命值
+                'h_max'=>2000000,
+                'h'=>2000000,//生命值
                 'a'=>84673,//攻击力
                 'd'=>1727,//防御力
                 's'=>1967,//速度
@@ -87,10 +100,10 @@ class SszgController extends Controller
             ],
             [
                 'id'=>'jiushen0',
-                'name'=>'酒神',
+                'name'=>'0酒神',
                 'position'=>23,//行列
-                'h_max'=>1000000,
-                'h'=>385287,//生命值
+                'h_max'=>2000000,
+                'h'=>2000000,//生命值
                 'a'=>33316,//攻击力
                 'd'=>1770,//防御力
                 's'=>1379,//速度
@@ -113,10 +126,10 @@ class SszgController extends Controller
             ],
             [
                 'id'=>'neza0',
-                'name'=>'哪吒',
+                'name'=>'0哪吒',
                 'position'=>33,//行列
                 'h_max'=>2000000,
-                'h'=>110116,//生命值
+                'h'=>2000000,//生命值
                 'a'=>100116,//攻击力
                 'd'=>1873,//防御力
                 's'=>1788,//速度
@@ -139,10 +152,10 @@ class SszgController extends Controller
             ],
             [
                 'id'=>'lafei0',
-                'name'=>'拉斐尔',
+                'name'=>'0拉斐尔',
                 'position'=>22,//行列
-                'h_max'=>1000000,
-                'h'=>532871,//生命值
+                'h_max'=>2000000,
+                'h'=>2000000,//生命值
                 'a'=>66165,//攻击力
                 'd'=>2242,//防御力
                 's'=>2211,//速度
@@ -165,10 +178,10 @@ class SszgController extends Controller
             ],
             [
                 'id'=>'haimu0',
-                'name'=>'海姆',
+                'name'=>'0海姆',
                 'position'=>21,//行列
                 'h_max'=>2000000,
-                'h'=>1611917,//生命值
+                'h'=>2000000,//生命值
                 'a'=>69764,//攻击力
                 'd'=>3184,//防御力
                 's'=>2016,//速度
@@ -193,10 +206,10 @@ class SszgController extends Controller
         $u1=[
             [
                 'id'=>'xiongmao1',
-                'name'=>'熊猫',
+                'name'=>'1熊猫',
                 'position'=>11,//行列
                 'h_max'=>2000000,
-                'h'=>1173333,//生命值
+                'h'=>2000000,//生命值
                 'a'=>76856,//攻击力
                 'd'=>2828,//防御力
                 's'=>1987,//速度
@@ -220,10 +233,10 @@ class SszgController extends Controller
             ],
             [
                 'id'=>'pan1',
-                'name'=>'潘',
-                'position'=>12,//行列
+                'name'=>'1潘',
+                'position'=>21,//行列
                 'h_max'=>2000000,
-                'h'=>1013385,//生命值
+                'h'=>2000000,//生命值
                 'a'=>93269,//攻击力
                 'd'=>2248,//防御力
                 's'=>1920,//速度
@@ -246,10 +259,10 @@ class SszgController extends Controller
             ],
             [
                 'id'=>'taitan1',
-                'name'=>'泰坦',
-                'position'=>13,//行列
-                'h_max'=>1000000,
-                'h'=>50,//生命值
+                'name'=>'1泰坦',
+                'position'=>31,//行列
+                'h_max'=>2000000,
+                'h'=>2000000,//生命值
                 'a'=>51958,//攻击力
                 'd'=>3056,//防御力
                 's'=>1802,//速度
@@ -272,10 +285,10 @@ class SszgController extends Controller
             ],
             [
                 'id'=>'fengwang1',
-                'name'=>'风王',
-                'position'=>21,//行列
-                'h_max'=>1000000,
-                'h'=>538986,//生命值
+                'name'=>'1风王',
+                'position'=>23,//行列
+                'h_max'=>2000000,
+                'h'=>2000000,//生命值
                 'a'=>108511,//攻击力
                 'd'=>1882,//防御力
                 's'=>1778,//速度
@@ -298,10 +311,10 @@ class SszgController extends Controller
             ],
             [
                 'id'=>'yemeng1',
-                'name'=>'耶梦加得',
+                'name'=>'1耶梦',
                 'position'=>22,//行列
-                'h_max'=>1100000,
-                'h'=>695546,//生命值
+                'h_max'=>2000000,
+                'h'=>2000000,//生命值
                 'a'=>111816,//攻击力
                 'd'=>2046,//防御力
                 's'=>1852,//速度
@@ -326,16 +339,103 @@ class SszgController extends Controller
 
         $qipan=new qipan(); //棋盘
 
+        $position=$this->getRandPosition();
         foreach ($u0 as $v) {
+            $index=array_rand($position,1);
+            $v['position']=$position[$index];
+            unset($position[$index]);
             $qipan->addRole(new role($v));//角色加入棋盘
         }
+        $position=$this->getRandPosition();
         foreach ($u1 as $v) {
+            $index=array_rand($position,1);
+            $v['position']=$position[$index];
+            unset($position[$index]);
             $qipan->addRole(new role($v));//角色加入棋盘
         } 
+        
+        $qipan->gameBegin();//战斗开始
 
-        $qipan->gameBegin();//战斗开始      
-        $attack_info=$qipan->getRecordInfo();   
-        // print_r($attack_info);
+        $record =$qipan->getObAll('recordInfo');//数据记录对象
 
+        $fight_info=$record->getInfo();//战斗数据
+        $Roles=$record->getRoles();//角色初始信息
+        // print_r($Roles);
+        // print_r($fight_info);
+        $info=[
+            'roles'=>$Roles,
+            'info'=>$fight_info,
+        ];
+        return json_encode($info);
+    }
+
+    private function getRandPosition($count=5)
+    {
+        $count=$count>=9?9:$count;
+        $arr=[11,12,13,21,22,23,31,32,33];
+        $keys = array_rand($arr,$count);
+        $val=[];
+        foreach ($keys as $v) {
+            $val[]=$arr[$v];
+        }
+        return $val;
+    }
+
+
+    public function test(){
+        $arr=[
+            [0,0],
+            [0,0],
+            [0,0],
+        ];
+
+        $arr=[
+            [0,0,0,0],
+            [0,0,0,0],
+            [0,0,0,0],
+            [0,0,0,0],
+            [0,0,0,0],
+            [0,0,0,0],
+        ];
+
+        $arr=[
+            [0,0,0],
+            [0,0,0],
+            [0,0,0],
+        ];
+
+
+        $x=count($arr[0]);
+        $y=count($arr);
+        if($y>$x){
+            $short='x';
+            $long='y';
+        }else{
+            $short='y';
+            $long='x';
+        }
+
+        $count=0;
+
+        for ($i=0; $i <${$long} ; $i++) { //循环长边
+            for ($ii=0; $ii <${$short} ; $ii++) { //循环短边
+
+                // 定位到当前元素
+
+                $can0= (${$long}-$i)>=${$short}?${$short}:(${$long}-$i);//y方向的边长
+
+                $can1= (${$short}-$ii)>=${$short}?${$short}:(${$short}-$ii);//x方向的边长
+                
+                //当前元素的最短边
+                $can=$can1>$can0?$can0:$can1;
+
+                //最短边长 即为 当前元素可形成的正方形数量（以当前元素为起点）
+                $count+=$can;
+                
+            }
+            
+        }
+
+        echo '共正方形' .$count;
     }
 }

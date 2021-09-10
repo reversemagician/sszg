@@ -8,6 +8,7 @@ trait putong
 {
 	public $putong=[
 		'name'=>'普通攻击',
+		'id'=>'skill_ptgj',
 		'p'=>100,
 		'type'=>'wuliattack',
 	];
@@ -15,7 +16,8 @@ trait putong
 	//普通攻击目标
 	public function putongTarget(){
 		
-		return $this->qipan->useTool('target','getTargetByCommon',['putong',$this]);
+		return $this->qipan->useTool('target','putong',[$this]);
+		  ;
 	}
 
 	public function putong(){
@@ -26,10 +28,10 @@ trait putong
 		$info=[//行动信息
 			'releaser'=>$this->role['id'],
 			'target'=>[$targets],
-			'type'=>$putong['type'],	//行动类型 物理攻击
+			'type'=>$putong['type'],	//行动类型 
 			'other'=>[],//其他信息
 			'attack_info'=>[ //攻击信息
-				'main'=>[
+				[
 					'type'=>$putong['type']=='wuliattack'?'wushang':'fashang',
 					'bacevalue'=>$this->getAttrValue('a')*$putong['p']/100,//key为value时为固定值伤害
 					'valuechange'=>[],

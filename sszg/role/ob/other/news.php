@@ -3,51 +3,60 @@ namespace App\myclass\sszg\role\ob\other;
 // 新闻信息播报
 class news{
 
-   public function beforeAttack($info,$qipan){
-   	$role=$qipan->getRole($info['releaser']);
+    public function beforeAttack($info,$self,$ob_key){
+	   	$qipan=$self->qipan;
 
-   	echo $role->getAttrString('name').'使用了'.$role->{$role->action['action_type']}['name'].'<br>';
+	   	$role=$qipan->getRole($info[0]['releaser']);
 
-   	return $info;
-   }
+	   	echo $role->getAttrString('name').'使用了'.$role->{$role->action['action_type']}['name'].'<br>';
 
-    public function afterUnderattack($info,$qipan){
-   	$role=$qipan->getRole($info['target']);
+	   	return $info;
+    }
 
-   	echo $role->getAttrString('name').'&nbsp;:';
-   	
-   	foreach ($info['hurt_result'] as $key => $value) {
+    public function afterUnderattack($info,$self,$ob_key){
 
-   		if($value['hurt']!=0){
+    	$qipan=$self->qipan;
 
-   			$type='';
-   			if($value['attack_type']=='wushang'){
-				$type='物理';
-				$color='#FFB800';
-   			}
-   			if($value['attack_type']=='fashang'){
-				$type='法术';
-				$color='#1E9FFF';
-   			}
-   			if($value['attack_type']=='zhenshang'){
-				$type='真实';
-				$color='#2F4056';
-   			}
-   			if(isset($value['info']['up']['baoshang'])){
-   				
-   				if ($value['info']['up']['baoshang']['shengxiao']==1) {
-   					$color='#FF5722';
-   				}
-   			}
+	   	$role=$qipan->getRole($info['target']);
 
-   			echo '&nbsp;受到'.$type.'伤害HP:<span style="color:'.$color.'">'.$value['hurt'].'</span>';
-   		}
-   		
-   	}
+	   	echo $role->getAttrString('name').'&nbsp;:';
+	   	
+	   	foreach ($info['attack_info'] as $key => $value) {
 
-   	echo '剩余血量：'.$role->getAttrValue('h').'<br>';
+	   		if($value['hurt'][0]!=0){
 
-   	return $info;
+	   			$type='';
+	   			if($value['type']=='wushang'){
+					// $type='<span style="color:#FFB800">物理</span>';
+					$type='物理';
+					$color='#FFB800';
+	   			}
+	   			if($value['type']=='fashang'){
+					// $type='<span style="color:#FFB800">物理</span>';
+					$type='法术';
+					$color='#1E9FFF';
+	   			}
+	   			if($value['type']=='zhenshang'){
+					$type='<span style="color:#666">真实</span>';
+					$color='#2F4056';
+	   			}
+
+	   			if(isset($value['hurt_info']['up']['baoshang'])){
+	   				
+	   				if ($value['hurt_info']['up']['baoshang']['shengxiao']==1) {
+	   					// $type.='暴击';
+	   					$color='#FF5722';
+	   				}
+	   			}
+
+	   			echo '&nbsp;受到'.$type.'伤害HP:<span style="color:'.$color.'">'.$value['hurt'][0].'</span>';
+	   		}
+	   		
+	   	}
+
+	   	echo '剩余血量：'.$role->getAttrValue('h').'<br>';
+
+	   	return $info;
    }
 	
 }

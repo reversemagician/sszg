@@ -17,12 +17,12 @@ namespace App\myclass\sszg\qipan\tool;
  	/**
 	 * 获取目标id
 	 *@param array $info 获取条件信息 
-	 *@param object $qipan 棋盘 
+	 *@param object $role 角色自身对象 
 	 *@return array $ids 目标id数组
 	 */
- 	public function getTargetId($info,$qipan){
+ 	public function getTargetId($info,$role){
 
- 		$this->workResult($info,$qipan);
+ 		$this->workResult($info,$role);
  		
 		$ids=[];
 
@@ -35,60 +35,65 @@ namespace App\myclass\sszg\qipan\tool;
  	/**
 	 * 获取目标对象实例
 	 *@param array $info 获取条件信息
-	 *@param object $qipan 棋盘 
+	 *@param object $role 角色自身对象 
 	 *@return array $ids 目标实例数组 |null
 	 */
- 	public function getTarget($info,$qipan){
+ 	public function getTarget($info,$role){
 		/*
 			$info=[
 	 			'rang'=>[],//范围限定//enemy敌人|teammate队友|qian前排|zhong中|hou后排|one第一行|two第二|three第三|fashi法师|zhanshi战士|fuzhu辅助|roudun肉盾|life存活|death死亡|
 	 			'where'=>'max_h',//筛选条件 max_*最大属性|min_*最小属性|rand随机|min_.h血量百分比最低|max_.h血量百分比最高
 	 			'number'=>1,//数量
 	 			'remove'=>[],//排除的角色ID
-	 			'self_team'=>1,//自身队伍 当需要判断敌人或友方时需要该值
 	 		];
  		*/
 
- 		$this->workResult($info,$qipan);
+ 		$this->workResult($info,$role);
  		
  		return $this->rang;
  	}
 
- 	/**
-	 * 获取目标 根据几种常用场景
-	 *@param string $title 获取条件信息 'enemy_rand_zhonghou' 第一个单词enemy或teammate 敌人或队友
-	 *@param object $role 角色自身 	 
+	/**
+	 * 获取目标 优先中后排 随机目标 指定数量
+	 *@param obj $role 自身对象
 	 *@param array $extends 扩展参数 
-	 *@return object $qipan 目标实例数组 |null
+	 *@return array $ids 目标id数组 
 	 */
-	public function getTargetByCommon($title,$role,$extends=[]){
-		$team=explode('_',$title)[0];//阵营
-		$title=str_replace('enemy_', '', $title);
-		$title=str_replace('teammate_', '', $title);
-		
-		$titles=[
-			'rand_zhonghou',//优先中后排 随机目标 指定数量， $extends=['number'=>all];
-			'putong',//通用普通攻击目标 
-		];
+ 	public function rand_zhonghou($role,$extends=[]){
+ 		// $extends=[ //可包含以下扩展参数
+ 		// 	'number'=>1,//获取的数量
+ 		// 	'team'=>'enemy', 
+ 		// 	//[enemy从敌人中获取]|
+ 		// 	//[teammate从队友中获取]| 
+ 		// 	//[all全部]
+ 		// 	'remove'=>[],//需要排除的角色id
+ 		// ];
+ 		return $this->rand_zhonghou_($role,$extends);
+ 	}
 
-		foreach ($titles as $k => $v) {
-			if ($title==$v) {
-				return $this->{$v}($team,$role,$extends);
-			}
-			
-		}
-
-		return [];
+ 	/**
+	 * 获取普通攻击目标 (常用标准)
+	 *@param obj $role 自身对象
+	 *@return array $ids 目标id数组 
+	 */
+	public function putong($role){
+		return $this->putong_($role);
 	}
 
+
+
+
+
+///以下为不开放接口
  	// 计算结果
- 	private function workResult($info,$qipan){
+ 	private function workResult($info,$role){
 
  		//全部角色
- 		$this->rang=$qipan->getAllRoles();
+ 		$this->rang=$role->qipan->getAllRoles();
  		//重置标记
  		$this->reTips();
 
+ 		$info['self_team']=$role->getAttrString('team');
  		$this->info=$info;
 
  		//排除id
@@ -104,10 +109,8 @@ namespace App\myclass\sszg\qipan\tool;
 	 		}
 	 	}
 
-
 	 	//筛选条件 及数量
-	 	$this->where();
-	 	
+	 	$this->where();	
  	}
 
  //筛选条件及数量
@@ -209,6 +212,7 @@ namespace App\myclass\sszg\qipan\tool;
  			}
  		}
  	}
+ 	private function all(){}
 
  	//过滤非指定位置的角色
  	private function position($position){
@@ -362,21 +366,21 @@ namespace App\myclass\sszg\qipan\tool;
  		}
  	}
 
-
-//常用目标筛选方法
  	//优先中后排 随机目标 指定数量
- 	private function rand_zhonghou($team,$role,$extends=[]){
- 		$extends=empty($extends)?['number'=>1]:$extends;
+ 	private function rand_zhonghou_($role,$extends=[]){
  
+ 		$extends['number']=isset($extends['number'])?$extends['number']:1;//敌人数量默认一个
+ 		$extends['team']=isset($extends['team'])?$extends['team']:'enemy';//默认敌人阵营
+ 		$extends['remove']=isset($extends['remove'])?$extends['remove']:[];//排除的id
+
  		$info=[
-	 			'rang'=>['life','zhong','hou',$team],
-	 			'where'=>'rand',//筛选条件 
+	 			'rang'=>['life','zhong','hou',$extends['team']],
+	 			'where'=>'rand', 
 	 			'number'=>$extends['number'],
-	 			'remove'=>[],//排除的角色ID
-	 			'self_team'=>$role->getAttrString('team'),
+	 			'remove'=>$extends['remove'],//排除的角色ID
 	 		];
 
-	 	$target = $this->getTargetId($info,$role->qipan);
+	 	$target = $this->getTargetId($info,$role);
 
 	 	if(count($target)==$extends['number']){
 	 		return $target;
@@ -384,43 +388,40 @@ namespace App\myclass\sszg\qipan\tool;
 
 	 	if (empty($target)) {
 	 		$info=[
-	 			'rang'=>['life',$team],
-	 			'where'=>'rand',//筛选条件 
+	 			'rang'=>['life',$extends['team']],
+	 			'where'=>'rand', 
 	 			'number'=>$extends['number'],
-	 			'remove'=>[],//排除的角色ID
-	 			'self_team'=>$role->getAttrString('team'),
+	 			'remove'=>$extends['remove'],//排除的角色ID
 	 		];
 
-	 		return $this->getTargetId($info,$role->qipan);
+	 		return $this->getTargetId($info,$role);
 	 	}
 
 	 	//中后排数量不足
 	 	if (count($target)<$extends['number']) {
 	 		$info=[
-	 			'rang'=>['life',$team,'qian'],
-	 			'where'=>'rand',//筛选条件 
+	 			'rang'=>['life',$extends['team'],'qian'],
+	 			'where'=>'rand',
 	 			'number'=>$extends['number']-count($target),
-	 			'remove'=>[],//排除的角色ID
-	 			'self_team'=>$role->getAttrString('team'),
+	 			'remove'=>$extends['remove'],
 	 		];
 
-	 		return array_merge($target,$this->getTargetId($info,$role->qipan));
+	 		return array_merge($target,$this->getTargetId($info,$role));
 	 	}
  	}
 
- 	//通用普通攻击
- 	private function putong($team,$role,$extends=[]){
-
+ 	//通用普通攻击 
+ 	private function putong_($role){
+ 		$team='enemy';
  		$position=$role->getAttrString('position');
 
  		$row =substr($position, 0,1);
 
  		$info=[
-	 			'rang'=>['qian','life'],
+	 			'rang'=>['qian','life',$team],
 	 			'where'=>'rand',
 	 			'number'=>3,
 	 			'remove'=>[],
-	 			'self_team'=>$role->getAttrString('team'),
 	 		];
 
 	 	//同排优先级
@@ -428,7 +429,7 @@ namespace App\myclass\sszg\qipan\tool;
 	 	unset($p[array_search($row,$p)]);
 	 	$p=array_merge([$row],$p);
 	 	
-	 	$target=$this->getTarget($info,$role->qipan);
+	 	$target=$this->getTarget($info,$role);
 
 	 	if (empty($target)) {
 
@@ -437,9 +438,8 @@ namespace App\myclass\sszg\qipan\tool;
 	 			'where'=>'rand',
 	 			'number'=>3,
 	 			'remove'=>[],
-	 			'self_team'=>$role->getAttrString('team'),
 	 		];
-	 		$target=$this->getTarget($info,$role->qipan);
+	 		$target=$this->getTarget($info,$role);
 
 	 		if (empty($target)) {
 
@@ -449,9 +449,8 @@ namespace App\myclass\sszg\qipan\tool;
 		 			'where'=>'rand',
 		 			'number'=>3,
 		 			'remove'=>[],
-		 			'self_team'=>$role->getAttrString('team'),
 		 		];
-		 		$target=$this->getTarget($info,$role->qipan);
+		 		$target=$this->getTarget($info,$role);
 
 		 		$target_key=0;
 		 		$p_key=2;

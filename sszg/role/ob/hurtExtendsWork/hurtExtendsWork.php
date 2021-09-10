@@ -18,11 +18,11 @@ namespace App\myclass\sszg\role\ob\hurtExtendsWork;
 	private $attacker='';
 	private $target='';
 
- 	public function getResult($hurt,$info,$qipan){
-
- 		$re =$this->analysis($info,$qipan);
-
- 		return array_merge($hurt,$re);
+ 	public function getResult($info,$self,$ob_key){
+ 		$qipan=$self->qipan;
+ 		$info =$this->analysis($info,$qipan);
+ 		
+ 		return $info;
  	}
 
  	//解析
@@ -31,32 +31,20 @@ namespace App\myclass\sszg\role\ob\hurtExtendsWork;
  		$this->attacker=$qipan->getRole($info['releaser']);
  		$this->target=$qipan->getRole($info['target']);
 
- 		//攻击包类型
-		$attack_rang=['wushang','fashang','zhenshang'];
-
-		//buff包类型
-		$buff_rang=['buff','debuff'];
-		$hurt=[];
  		foreach ($info['attack_info'] as $k => $v) {
 
 			//攻击包处理
-			if(in_array($v['type'],$attack_rang)){
-				// 伤害计算
-				$hurt[] = $this->hurtWork($v);
-			}
-
-			//buff包处理
-			if(in_array($v['type'],$buff_rang)){
-				$this->hasBuff($v);//buff概率生效判定
-			}
-
+			// 伤害计算
+			$info['attack_info'][$k] = array_merge($v,$this->hurtWork($v)) ;
+			
 		}
 
-		return $hurt;
+		return $info;
  	}
 
  	// 攻击包处理
  	private function hurtWork($pack){
+
  		$arr['bace']=$pack['bacevalue'];//基础伤害
 	
 		//计算加成
@@ -68,7 +56,7 @@ namespace App\myclass\sszg\role\ob\hurtExtendsWork;
 		//结算伤害值
 		$val =  $this->settlement($arr);
 
-		return [ 'value'=> $val,'attack_type'=>$pack['type'],'info'=>$arr];
+		return [ 'hurt_value'=> $val,'hurt_info'=>$arr];
  	}
  	// buff包处理
  	private function hasBuff($v){

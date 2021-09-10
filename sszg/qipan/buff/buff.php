@@ -23,6 +23,28 @@ class buff
 		// ],
 	];
 
+	//获取buff的统一格式
+	public function getBuffFormat($arr=[]){
+
+		$buff=[    
+			'id'=>0,//唯一标识
+			'releaser'=>'roleid',//释放者id
+	        'name'=>'',//buff名 同名buff一般仅生效最高效果
+	        'bufftype'=>'buff',//增益 减益
+	        'type'=>'attrup',// attrup|attrdown|other|{'chenmo','xuanyun'}|''   属性提升|属性降低|其他(或复合型)|其他类型
+	        'turn'=>1,//持续回合
+	        'ceng'=>1,//层数
+	        'diejia'=>'none',//叠加类型 name|ceng|none  同名叠加|层数叠加|无叠加
+	        'attrchange'=>[],//属性改变效果 属性增益或属性减益
+	        'other'=>[
+            	// 'noqusan',//不可驱散
+            	
+	        ],
+        ];
+
+		return array_merge($buff,$arr);
+	}
+
 	public $buff_type=[
 		'buff'=>[
 		],
